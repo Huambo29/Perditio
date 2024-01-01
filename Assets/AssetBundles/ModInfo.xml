@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ModInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ModName>Perditio</ModName>
+  <ModDescription>wip</ModDescription>
+  <ModVer>0.3</ModVer>
+  <Assemblies>
+    <string>Perditio.dll</string>
+  </Assemblies>
+  <AssetBundles>
+    <string>perditio</string>
+  </AssetBundles>
+</ModInfo>

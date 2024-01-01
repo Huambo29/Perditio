@@ -1,0 +1,43 @@
+ManifestFileVersion: 0
+CRC: 2081133180
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: c57467c50a190dc0e51942237abcc73b
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 31db7661dd3e2ee37baa783dd7333535
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 49
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 1413284775, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
+- Class: 114
+  Script: {fileID: 1411395594, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
+- Class: 114
+  Script: {fileID: -1463400506, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
+- Class: 114
+  Script: {fileID: -217899150, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3a9b9731125263449b6b7c007e74be0f, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Bundle/Perditio/manifest.xml
+- Assets/Bundle/Perditio/PerditioOctree.asset
+- Assets/Bundle/Perditio/Materials/BasicTerrain.mat
+- Assets/Bundle/Perditio/miniature.png
+- Assets/Bundle/Perditio/Perditio.prefab
+Dependencies: []

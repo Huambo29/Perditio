@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1463400506, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
+  m_Name: PerditioOctree
+  m_EditorClassIdentifier: 
+  _graph: {fileID: 4900000, guid: 087a99f3dde0faa4ea0bae0845cec8a9, type: 3}
+  _tree: {fileID: 4900000, guid: 4ab166e1f983b2c44b27e4b62b0e2927, type: 3}
