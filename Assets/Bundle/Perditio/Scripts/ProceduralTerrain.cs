@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
-public class ProceduralTerrain : MonoBehaviour
+public class ProceduralTerrain : NetworkBehaviour
 {
     [SerializeField]
     bool debug = false;
@@ -25,6 +26,7 @@ public class ProceduralTerrain : MonoBehaviour
     [SerializeField]
     float drop_off_end = 40f;
 
+    [SyncVar(hook = "UpdateMesh")]
     float[,,] density_field;
 
     Vector3 GetPositionFromGrid(Vector3Int root_position)
@@ -333,19 +335,58 @@ public class ProceduralTerrain : MonoBehaviour
         return (ab + bc + ac + ba + cb + ca) / 6f;
     }
 
+    [SerializeField]
+    int octaves = 4;
+    [SerializeField]
+    Vector3 perlin_offset = new Vector3(1123f, 12f, 5000f);
+    [SerializeField]
+    Quaternion perlin_rotation;
+    [SerializeField]
+    float perlin_scale = 100f;
+    [SerializeField]
+    float persistence = 0.5f;
+    [SerializeField]
+    float lacunarity = 2f;
+
+
+    float PerlinOctaves(Vector3 pos)
+    {
+        float result = 0f;
+
+        float amplitude = 1f;
+        float frequency = 1f;
+
+        for (int i = 0; i < octaves; i++)
+        {
+            result += amplitude * SamplePerlinNoise(pos * frequency);
+            amplitude *= persistence;
+            frequency *= lacunarity;
+        }
+
+        if (1f - persistence == 0)
+        {
+            persistence = 1.000001f;
+        }
+
+        return result / ((1f - Mathf.Pow(persistence, octaves)) / (1f - persistence));
+    }
+
     float CalculateDensity(int x, int y, int z)
     {
         float center_distance = Mathf.Sqrt(Mathf.Pow((float)x / grid_resolution - 0.5f, 2f) + Mathf.Pow((float)y / grid_resolution - 0.5f, 2f) + Mathf.Pow((float)z / grid_resolution - 0.5f, 2f)) * mesh_size;
-        float drop_off = 1f - ((Mathf.Max(drop_off_start, Mathf.Min(center_distance, drop_off_end)) - drop_off_start) / (drop_off_end - drop_off_start));
+        float drop_off = ((Mathf.Max(drop_off_start, Mathf.Min(center_distance, drop_off_end)) - drop_off_start) / (drop_off_end - drop_off_start));
 
-        return drop_off * SamplePerlinNoise(new Vector3(x, y, z) * 1.41421356237f * 0.1f);
+        return PerlinOctaves((perlin_rotation * new Vector3(x, y, z) + perlin_offset) * 1.41421356237f / perlin_scale) - Mathf.Pow(drop_off, 2f);
 
         // return 1f - FractalDistanceFunction(fractal_rotation * new Vector3((float)x / grid_resolution - 0.5f, (float)y / grid_resolution - 0.5f, (float)z / grid_resolution - 0.5f) + fractal_offset) / mesh_size;
     }
 
-    void GenerateDistanceField()
+    public override void OnStartServer()
     {
-        density_field = new float[grid_resolution, grid_resolution, grid_resolution];
+        Debug.Log("OnStartServer " + gameObject.GetInstanceID());
+        base.OnStartServer();
+        Debug.Log("OnStartServer2");
+        float[,,] new_density_field = new float[grid_resolution, grid_resolution, grid_resolution];
 
         for (int x = 0; x < grid_resolution; x++)
         {
@@ -353,33 +394,80 @@ public class ProceduralTerrain : MonoBehaviour
             {
                 for (int z = 0; z < grid_resolution; z++)
                 {
-                    density_field[x, y, z] = CalculateDensity(x, y, z);
+                    new_density_field[x, y, z] = CalculateDensity(x, y, z);
 
                     if (
-                        density_field[x, y, z] <= 0 &&
-                        (x == 0 || x == grid_resolution - 1 ||
+                        x == 0 || x == grid_resolution - 1 ||
                         y == 0 || y == grid_resolution - 1 ||
-                        z == 0 || z == grid_resolution - 1)
+                        z == 0 || z == grid_resolution - 1
                     )
                     {
-                        density_field[x, y, z] = 0f;
+                        new_density_field[x, y, z] = 0f;
                     }
                 }
             }
         }
+
+        density_field = new_density_field;
     }
 
     MeshFilter mesh_filter;
     MeshRenderer mesh_renderer;
+    MeshCollider mesh_collider;
+
+    private void UpdateMesh(
+        float[,,] old_value,
+        float[,,] new_value
+    ) {
+        Debug.Log("UpdateMesh");
+        return;
+
+        if (mesh_filter.mesh)
+        {
+            Destroy(mesh_filter.mesh);
+        }
+        
+        Mesh new_mesh = GenerateMesh();
+        mesh_filter.mesh = new_mesh;
+        mesh_collider.sharedMesh = new_mesh;
+    }
 
     void Start()
     {
-        Debug.Log("Starte");
+        perlin_offset = new Vector3(Random.Range(-100000f, 100000f), Random.Range(-100000f, 100000f), Random.Range(-100000f, 100000f));
+        perlin_rotation = Random.rotation;
+        density_cut_off = 0.5f - 0.02f * Random.value;
 
-        GenerateDistanceField();
+        NetworkServer.Spawn(gameObject);
+        Debug.Log("Starte");
+        Debug.Log("isServer: " + isServer + " isServerOnly: " + isServerOnly + " isClient: " + isClient + " isClientOnly: " + isClientOnly + " isLocalPlayer: " + isLocalPlayer);
+
+        mesh_filter = gameObject.GetComponent<MeshFilter>();
+        mesh_renderer = gameObject.GetComponent<MeshRenderer>();
+        mesh_collider = gameObject.GetComponent<MeshCollider>();
+
+        mesh_renderer.material = terrain_material;
+
+        if (isServer)
+        {
+            OnStartServer();
+        }
+
+        OnStartServer();
+
         Mesh new_mesh = GenerateMesh();
-        gameObject.AddComponent<MeshFilter>().mesh = new_mesh;
-        gameObject.AddComponent<MeshRenderer>().material = terrain_material;
-        gameObject.AddComponent<MeshCollider>().sharedMesh = new_mesh;
+        mesh_filter.mesh = new_mesh;
+        mesh_collider.sharedMesh = new_mesh;
+    }
+
+    private void Update()
+    {
+        if (!this.isServer)
+        {
+            return;
+        } else
+        {
+            Debug.Log("I am Server" + gameObject.GetInstanceID());
+        }
     }
 }
