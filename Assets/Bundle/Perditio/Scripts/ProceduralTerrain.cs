@@ -20,9 +20,12 @@ public class ProceduralTerrain : MonoBehaviour
     float density_cut_off = 0.5f;
 
     [SerializeField]
-    float circle_radius = 100f;
+    float drop_off_start = 30f;
 
-    float[,,] distance_field;
+    [SerializeField]
+    float drop_off_end = 40f;
+
+    float[,,] density_field;
 
     Vector3 GetPositionFromGrid(Vector3Int root_position)
     {
@@ -64,16 +67,19 @@ public class ProceduralTerrain : MonoBehaviour
         {
             Vector3Int position_a_int = root_position + edges[i, 0];
             Vector3 position_a = GetPositionFromGrid(position_a_int);
-            float distance_sample_a = distance_field[position_a_int.x, position_a_int.y, position_a_int.z];
+            float density_sample_a = density_field[position_a_int.x, position_a_int.y, position_a_int.z];
 
             Vector3Int position_b_int = root_position + edges[i, 1];
             Vector3 position_b = GetPositionFromGrid(position_b_int);
-            float distance_sample_b = distance_field[position_b_int.x, position_b_int.y, position_b_int.z];
+            float density_sample_b = density_field[position_b_int.x, position_b_int.y, position_b_int.z];
 
-            if (distance_sample_a * distance_sample_b <= 0)
-            {
+            if (
+                Mathf.Min(density_sample_a, density_sample_b) < density_cut_off &&
+                Mathf.Max(density_sample_a, density_sample_b) >= density_cut_off
+            ) {
                 surface_edges_n++;
-                result += Vector3.Lerp(position_a, position_b, Mathf.Abs(distance_sample_a) / (Mathf.Abs(distance_sample_a) + Mathf.Abs(distance_sample_b)));
+                float lerp_factor = (density_cut_off - density_sample_a) / (density_sample_b - density_sample_a);
+                result += Vector3.Lerp(position_a, position_b, lerp_factor);
             }
         }
 
@@ -121,10 +127,10 @@ public class ProceduralTerrain : MonoBehaviour
             {
                 for (int z = 0; z < grid_resolution; z++)
                 {
-                    bool root_inside = distance_field[x, y, z] <= 0f;
+                    bool root_inside = density_field[x, y, z] >= density_cut_off;
                     Vector3 root_positon = GetPositionFromGrid(new Vector3Int(x, y, z));
 
-                    if (x < grid_resolution - 1 && (distance_field[x + 1, y, z] <= 0f != root_inside))
+                    if (x < grid_resolution - 1 && (density_field[x + 1, y, z] >= density_cut_off != root_inside))
                     {
                         int vertices_offset = vertices.Count;
                         vertices.Add(GetSurfacePosition(new Vector3Int(x, y, z - 1)));
@@ -153,7 +159,7 @@ public class ProceduralTerrain : MonoBehaviour
                         }
                     }
 
-                    if (y < grid_resolution - 1 && (distance_field[x, y + 1, z] <= 0f != root_inside))
+                    if (y < grid_resolution - 1 && (density_field[x, y + 1, z] >= density_cut_off != root_inside))
                     {
                         int vertices_offset = vertices.Count;
                         vertices.Add(GetSurfacePosition(new Vector3Int(x, y, z - 1)));
@@ -184,7 +190,7 @@ public class ProceduralTerrain : MonoBehaviour
                         }
                     }
 
-                    if (z < grid_resolution - 1 && (distance_field[x, y, z + 1] <= 0f != root_inside))
+                    if (z < grid_resolution - 1 && (density_field[x, y, z + 1] >= density_cut_off != root_inside))
                     {
                         int vertices_offset = vertices.Count;
                         vertices.Add(GetSurfacePosition(new Vector3Int(x, y, z)));
@@ -314,22 +320,32 @@ public class ProceduralTerrain : MonoBehaviour
         return r / Mathf.Abs(dr) * fractal_global_scale;
     }
 
-    float CalculateDistance(int x, int y, int z)
+    float SamplePerlinNoise(Vector3 pos)
     {
-        float distance_to_sphere = Mathf.Pow((float)x / grid_resolution - 0.5f, 2f) + Mathf.Pow((float)y / grid_resolution - 0.5f, 2f) + Mathf.Pow((float)z / grid_resolution - 0.5f, 2f) - Mathf.Pow(circle_radius / mesh_size, 2f);
+        float ab = Mathf.PerlinNoise(pos.x, pos.y);
+        float bc = Mathf.PerlinNoise(pos.y, pos.z);
+        float ac = Mathf.PerlinNoise(pos.x, pos.z);
 
-        if (distance_to_sphere > 0f)
-        {
-            return distance_to_sphere;
-        }
+        float ba = Mathf.PerlinNoise(pos.y, pos.x);
+        float cb = Mathf.PerlinNoise(pos.z, pos.y);
+        float ca = Mathf.PerlinNoise(pos.z, pos.x);
 
-        // return distance_to_sphere;
-        return FractalDistanceFunction(fractal_rotation * new Vector3((float)x / grid_resolution - 0.5f, (float)y / grid_resolution - 0.5f, (float)z / grid_resolution - 0.5f) + fractal_offset) - fractal_minimum;
+        return (ab + bc + ac + ba + cb + ca) / 6f;
+    }
+
+    float CalculateDensity(int x, int y, int z)
+    {
+        float center_distance = Mathf.Sqrt(Mathf.Pow((float)x / grid_resolution - 0.5f, 2f) + Mathf.Pow((float)y / grid_resolution - 0.5f, 2f) + Mathf.Pow((float)z / grid_resolution - 0.5f, 2f)) * mesh_size;
+        float drop_off = 1f - ((Mathf.Max(drop_off_start, Mathf.Min(center_distance, drop_off_end)) - drop_off_start) / (drop_off_end - drop_off_start));
+
+        return drop_off * SamplePerlinNoise(new Vector3(x, y, z) * 1.41421356237f * 0.1f);
+
+        // return 1f - FractalDistanceFunction(fractal_rotation * new Vector3((float)x / grid_resolution - 0.5f, (float)y / grid_resolution - 0.5f, (float)z / grid_resolution - 0.5f) + fractal_offset) / mesh_size;
     }
 
     void GenerateDistanceField()
     {
-        distance_field = new float[grid_resolution, grid_resolution, grid_resolution];
+        density_field = new float[grid_resolution, grid_resolution, grid_resolution];
 
         for (int x = 0; x < grid_resolution; x++)
         {
@@ -337,21 +353,24 @@ public class ProceduralTerrain : MonoBehaviour
             {
                 for (int z = 0; z < grid_resolution; z++)
                 {
-                    distance_field[x, y, z] = CalculateDistance(x, y, z);
+                    density_field[x, y, z] = CalculateDensity(x, y, z);
 
                     if (
-                        distance_field[x, y, z] <= 0 &&
+                        density_field[x, y, z] <= 0 &&
                         (x == 0 || x == grid_resolution - 1 ||
                         y == 0 || y == grid_resolution - 1 ||
                         z == 0 || z == grid_resolution - 1)
                     )
                     {
-                        distance_field[x, y, z] = 1f / grid_resolution;
+                        density_field[x, y, z] = 0f;
                     }
                 }
             }
         }
     }
+
+    MeshFilter mesh_filter;
+    MeshRenderer mesh_renderer;
 
     void Start()
     {

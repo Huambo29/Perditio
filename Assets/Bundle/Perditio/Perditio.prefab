@@ -654,7 +654,8 @@ MonoBehaviour:
   grid_resolution: 64
   mesh_size: 1600
   density_cut_off: 0.5
-  circle_radius: 700
+  drop_off_start: 600
+  drop_off_end: 700
   fractal_global_scale: 100
   Iterations: 14
   fractal_scale: 2
