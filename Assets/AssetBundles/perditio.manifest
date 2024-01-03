@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 3673961202
+CRC: 3158275564
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 383789669b8c63b8e029779ea6c92104
+    Hash: 024144cc83b0c892c31cb884f9d56dc1
   TypeTreeHash:
     serializedVersion: 2
-    Hash: f9d9c3d5805afc47604b404837dda1ff
+    Hash: 13487864a45e38a0567edaa6cf605df1
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -30,15 +30,17 @@ ClassTypes:
 - Class: 64
   Script: {instanceID: 0}
 - Class: 114
+  Script: {fileID: 860895539, guid: d84f91f10e914c045bc9c2ceff39d66a, type: 3}
+- Class: 114
   Script: {fileID: 1413284775, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 1930d650143ff2446ad76865efc5fabe, type: 3}
 - Class: 114
   Script: {fileID: 1411395594, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
 - Class: 114
   Script: {fileID: -1463400506, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
 - Class: 114
   Script: {fileID: -217899150, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
-- Class: 114
-  Script: {fileID: 860895539, guid: d84f91f10e914c045bc9c2ceff39d66a, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 3a9b9731125263449b6b7c007e74be0f, type: 3}
 - Class: 115
@@ -47,6 +49,7 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Bundle/Perditio/manifest.xml
 - Assets/Bundle/Perditio/Materials/test.mat
+- Assets/Bundle/Perditio/ProceduralTerrain.prefab
 - Assets/Bundle/Perditio/Materials/TacView.mat
 - Assets/Bundle/Perditio/PerditioOctree.asset
 - Assets/Bundle/Perditio/Materials/BasicTerrain.mat

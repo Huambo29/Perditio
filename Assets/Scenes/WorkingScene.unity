@@ -123,7 +123,70 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &275433488
+--- !u!1 &429127467
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 429127468}
+  - component: {fileID: 429127470}
+  - component: {fileID: 429127469}
+  m_Layer: 0
+  m_Name: MapCenter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &429127468
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429127467}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 885588501}
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &429127469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429127467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a3ed6b7f9e24bb4eb490684760b87d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &429127470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429127467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -120426127, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DebugDraw: 1
+  _debugDrawCameraDistance: 0
+  _debugDrawObstructed: 1
+  _leafRadius: 16
+  _minDepth: 1
+  _maxDepth: 6
+--- !u!1001 &885588500
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -180,74 +243,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 497e878b5f1fedf4ebc4f14bd6f10ec6, type: 3}
---- !u!4 &275433489 stripped
+--- !u!4 &885588501 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4858359420844789412, guid: 497e878b5f1fedf4ebc4f14bd6f10ec6, type: 3}
-  m_PrefabInstance: {fileID: 275433488}
+  m_PrefabInstance: {fileID: 885588500}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &429127467
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 429127468}
-  - component: {fileID: 429127470}
-  - component: {fileID: 429127469}
-  m_Layer: 0
-  m_Name: MapCenter
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &429127468
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 429127467}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 275433489}
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &429127469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 429127467}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a3ed6b7f9e24bb4eb490684760b87d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &429127470
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 429127467}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -120426127, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DebugDraw: 1
-  _debugDrawCameraDistance: 0
-  _debugDrawObstructed: 1
-  _leafRadius: 16
-  _minDepth: 1
-  _maxDepth: 6
 --- !u!1 &1032504693
 GameObject:
   m_ObjectHideFlags: 1
