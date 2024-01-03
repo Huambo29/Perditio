@@ -5,11 +5,18 @@ using Mirror;
 
 public class ProceduralTerrain : NetworkBehaviour
 {
+    MeshFilter mesh_filter;
+    MeshRenderer mesh_renderer;
+    MeshCollider mesh_collider;
+
+
     [SerializeField]
     bool debug = false;
 
     [SerializeField]
     Material terrain_material;
+    //[SerializeField]
+    //Material tacview_material;
 
     [SerializeField]
     int grid_resolution = 100;
@@ -28,6 +35,9 @@ public class ProceduralTerrain : NetworkBehaviour
 
     [SyncVar(hook = "UpdateMesh")]
     float[,,] density_field;
+
+    [SyncVar(hook = "UpdateCapPoints")]
+    Vector3[] DistributedObjectives;
 
     Vector3 GetPositionFromGrid(Vector3Int root_position)
     {
@@ -371,12 +381,36 @@ public class ProceduralTerrain : NetworkBehaviour
         return result / ((1f - Mathf.Pow(persistence, octaves)) / (1f - persistence));
     }
 
+    float interest_points_drop_off(Vector3 pos)
+    {
+        float result = 0f;
+
+        float cap_drop_off_start = 60f;
+        float cap_drop_off_end = 150f;
+
+
+        Vector3 sample_grid_positon = pos / grid_resolution - Vector3.one * 0.5f;
+
+        Game.Map.Battlespace battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
+        for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
+        {
+            Vector3 cap_grid_position = battlespace.DistributedObjectives[i] / mesh_size;
+
+            float center_distance = Vector3.Distance(sample_grid_positon, cap_grid_position) * mesh_size;
+            //Debug.Log("center_distance: " + center_distance);
+            float drop_off = 1f - ((Mathf.Max(cap_drop_off_start, Mathf.Min(center_distance, cap_drop_off_end)) - cap_drop_off_start) / (cap_drop_off_end - cap_drop_off_start));
+            result -= Mathf.Pow(drop_off, 2f);
+        }
+
+        return result;
+    }
+
     float CalculateDensity(int x, int y, int z)
     {
         float center_distance = Mathf.Sqrt(Mathf.Pow((float)x / grid_resolution - 0.5f, 2f) + Mathf.Pow((float)y / grid_resolution - 0.5f, 2f) + Mathf.Pow((float)z / grid_resolution - 0.5f, 2f)) * mesh_size;
         float drop_off = ((Mathf.Max(drop_off_start, Mathf.Min(center_distance, drop_off_end)) - drop_off_start) / (drop_off_end - drop_off_start));
 
-        return PerlinOctaves((perlin_rotation * new Vector3(x, y, z) + perlin_offset) * 1.41421356237f / perlin_scale) - Mathf.Pow(drop_off, 2f);
+        return PerlinOctaves((perlin_rotation * new Vector3(x, y, z) + perlin_offset) * 1.41421356237f / perlin_scale) - Mathf.Pow(drop_off, 2f) + interest_points_drop_off(new Vector3(x, y, z));
 
         // return 1f - FractalDistanceFunction(fractal_rotation * new Vector3((float)x / grid_resolution - 0.5f, (float)y / grid_resolution - 0.5f, (float)z / grid_resolution - 0.5f) + fractal_offset) / mesh_size;
     }
@@ -386,6 +420,36 @@ public class ProceduralTerrain : NetworkBehaviour
         Debug.Log("OnStartServer " + gameObject.GetInstanceID());
         base.OnStartServer();
         Debug.Log("OnStartServer2");
+        Game.Map.Battlespace battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
+        for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
+        {
+            if (i == 0)
+            {
+                battlespace.DistributedObjectives[i] = Random.onUnitSphere * Random.Range(0f, mesh_size / 2f * 0.1f);
+            }
+            else if (i % 2 == 1)
+            {
+                bool good_placement;
+                do
+                {
+                    battlespace.DistributedObjectives[i] = Random.onUnitSphere * Random.Range(mesh_size / 2f * 0.1f + 400f, mesh_size / 2f - 200f);
+                    good_placement = true;
+                    for (int k = 0; k < i; k++)
+                    {
+                        if (Vector3.Distance(battlespace.DistributedObjectives[k], battlespace.DistributedObjectives[i]) <= 500f)
+                        {
+                            good_placement = false;
+                            break;
+                        }
+                    }
+                } while (!good_placement);
+            }
+            else
+            {
+                battlespace.DistributedObjectives[i] = -battlespace.DistributedObjectives[i - 1];
+            }
+        }
+
         float[,,] new_density_field = new float[grid_resolution, grid_resolution, grid_resolution];
 
         for (int x = 0; x < grid_resolution; x++)
@@ -411,34 +475,44 @@ public class ProceduralTerrain : NetworkBehaviour
         density_field = new_density_field;
     }
 
-    MeshFilter mesh_filter;
-    MeshRenderer mesh_renderer;
-    MeshCollider mesh_collider;
-
     private void UpdateMesh(
         float[,,] old_value,
         float[,,] new_value
     ) {
         Debug.Log("UpdateMesh");
-        return;
+        density_field = new_value;
 
         if (mesh_filter.mesh)
         {
             Destroy(mesh_filter.mesh);
         }
-        
+
         Mesh new_mesh = GenerateMesh();
         mesh_filter.mesh = new_mesh;
         mesh_collider.sharedMesh = new_mesh;
     }
 
+    private void UpdateCapPoints(Vector3[] old_value, Vector3[] new_value)
+    {
+        Debug.Log("UpdateCapPoints");
+        Game.Map.Battlespace battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
+
+        for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
+        {
+            battlespace.DistributedObjectives[i] = new_value[i];
+        }
+    }
+
     void Start()
     {
-        perlin_offset = new Vector3(Random.Range(-100000f, 100000f), Random.Range(-100000f, 100000f), Random.Range(-100000f, 100000f));
-        perlin_rotation = Random.rotation;
-        density_cut_off = 0.5f - 0.02f * Random.value;
-
-        NetworkServer.Spawn(gameObject);
+        if (!NetworkServer.active)
+        {
+            Debug.Log("Server not active. Going into editor mode");
+        } else
+        {
+            NetworkServer.Spawn(gameObject);
+        }
+        
         Debug.Log("Starte");
         Debug.Log("isServer: " + isServer + " isServerOnly: " + isServerOnly + " isClient: " + isClient + " isClientOnly: " + isClientOnly + " isLocalPlayer: " + isLocalPlayer);
 
@@ -448,16 +522,18 @@ public class ProceduralTerrain : NetworkBehaviour
 
         mesh_renderer.material = terrain_material;
 
-        if (isServer)
+        if (isServer || !NetworkServer.active)
         {
+            perlin_offset = new Vector3(Random.Range(-100000f, 100000f), Random.Range(-100000f, 100000f), Random.Range(-100000f, 100000f));
+            perlin_rotation = Random.rotation;
+            density_cut_off = 0.5f - 0.02f * Random.value;
+
             OnStartServer();
-        }
 
-        OnStartServer();
-
-        Mesh new_mesh = GenerateMesh();
-        mesh_filter.mesh = new_mesh;
-        mesh_collider.sharedMesh = new_mesh;
+            Mesh new_mesh = GenerateMesh();
+            mesh_filter.mesh = new_mesh;
+            mesh_collider.sharedMesh = new_mesh;
+        } 
     }
 
     private void Update()
