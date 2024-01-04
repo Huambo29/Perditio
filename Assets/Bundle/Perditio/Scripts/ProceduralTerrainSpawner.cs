@@ -9,6 +9,9 @@ public class ProceduralTerrainSpawner : NetworkBehaviour
     GameObject procedural_terrain_prefab;
 
     [SerializeField]
+    GameObject middle_man_prefab;
+
+    [SerializeField]
     Material terrain_material;
     [SerializeField]
     int grid_resolution = 100;
@@ -107,6 +110,9 @@ public class ProceduralTerrainSpawner : NetworkBehaviour
 
     void Start()
     {
+        NetworkClient.RegisterPrefab(procedural_terrain_prefab);
+        NetworkClient.RegisterPrefab(middle_man_prefab);
+
         if (!NetworkServer.active)
         {
             Debug.Log("You are not server");
@@ -173,15 +179,32 @@ public class ProceduralTerrainSpawner : NetworkBehaviour
             }
         }
         
-        GameObject procedural_terrain = Instantiate(procedural_terrain_prefab);
 
-        procedural_terrain.GetComponent<ProceduralTerrain>().battlespace = battlespace;
-        procedural_terrain.GetComponent<ProceduralTerrain>().terrain_material = terrain_material;
-        procedural_terrain.GetComponent<ProceduralTerrain>().grid_resolution = grid_resolution;
-        procedural_terrain.GetComponent<ProceduralTerrain>().mesh_size = mesh_size;
-        procedural_terrain.GetComponent<ProceduralTerrain>().density_cut_off = density_cut_off;
-        procedural_terrain.GetComponent<ProceduralTerrain>().density_field = density_field;
+        //GameObject procedural_terrain = Instantiate(procedural_terrain_prefab);
+        //NetworkServer.Spawn(procedural_terrain);
 
-        NetworkServer.Spawn(procedural_terrain);
+        GameObject middle_man = Instantiate(middle_man_prefab);
+        middle_man.GetComponent<MiddleMen>().test_sync = true;
+
+        NetworkServer.Spawn(middle_man);
+
+
+        //ProceduralTerrain procedural_terrain_component = procedural_terrain.GetComponent<ProceduralTerrain>();
+        //procedural_terrain_component.test_sync = !procedural_terrain_component.test_sync;
+        /*
+        ProceduralTerrainSettings terrain_settings = new ProceduralTerrainSettings();
+        terrain_settings.terrain_material = terrain_material;
+        terrain_settings.grid_resolution = grid_resolution;
+        terrain_settings.mesh_size = mesh_size;
+        terrain_settings.density_cut_off = density_cut_off;
+        terrain_settings.density_field = density_field;
+
+        procedural_terrain_component.terrain_settings = terrain_settings;
+        */
+    }
+
+    void Update()
+    {
+        
     }
 }

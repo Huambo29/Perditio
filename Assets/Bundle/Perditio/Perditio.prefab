@@ -78,7 +78,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 0
   serverOnly: 0
-  visible: 2
+  visible: 0
   m_AssetId: 
   hasSpawned: 0
 --- !u!114 &7731812096030609501
@@ -95,7 +95,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  procedural_terrain_prefab: {fileID: 3325020858771094791, guid: 7765d65d8fa96a04e83b4002bb29ca5e, type: 3}
+  procedural_terrain_prefab: {fileID: 8334707102973976087, guid: 7765d65d8fa96a04e83b4002bb29ca5e, type: 3}
+  middle_man_prefab: {fileID: 5901621083229900079, guid: 375c62f5f6f3caa4ea62244996f19549, type: 3}
   terrain_material: {fileID: 2100000, guid: 0d503bf6be1356d48b2daa066f1eb363, type: 2}
   grid_resolution: 128
   mesh_size: 1800

@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 3158275564
+CRC: 137210078
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 024144cc83b0c892c31cb884f9d56dc1
+    Hash: b6615fbee3d9f84a247244bde9a5d32e
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 13487864a45e38a0567edaa6cf605df1
+    Hash: fa4bfcfc51fcb1a51e7c7a54b24dd6c7
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -36,6 +36,8 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 1930d650143ff2446ad76865efc5fabe, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 21daab31773f310448487232d8917e79, type: 3}
+- Class: 114
   Script: {fileID: 1411395594, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
 - Class: 114
   Script: {fileID: -1463400506, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
@@ -49,7 +51,6 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Bundle/Perditio/manifest.xml
 - Assets/Bundle/Perditio/Materials/test.mat
-- Assets/Bundle/Perditio/ProceduralTerrain.prefab
 - Assets/Bundle/Perditio/Materials/TacView.mat
 - Assets/Bundle/Perditio/PerditioOctree.asset
 - Assets/Bundle/Perditio/Materials/BasicTerrain.mat
