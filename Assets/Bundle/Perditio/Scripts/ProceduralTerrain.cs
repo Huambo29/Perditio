@@ -13,10 +13,16 @@ public class ProceduralTerrain : MonoBehaviour
     [SerializeField]
     MeshRenderer mesh_renderer_terrain;
     [SerializeField]
+    MeshFilter mesh_filter_tacview;
+    [SerializeField]
+    MeshRenderer mesh_renderer_tacview;
+    [SerializeField]
     MeshCollider mesh_collider;
 
     [SerializeField]
     Material terrain_material;
+    [SerializeField]
+    Material tacview_material;
 
     [Header("Procedural Settings")]
     [SerializeField]
@@ -456,8 +462,12 @@ public class ProceduralTerrain : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("Flag 1");
         mesh_renderer_terrain.material = terrain_material;
+        Debug.Log("Flag 2");
+        mesh_renderer_tacview.material = tacview_material;
 
+        Debug.Log("Flag 3");
         battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
 
         LogEntireScene();
@@ -541,6 +551,7 @@ public class ProceduralTerrain : MonoBehaviour
 
         Mesh new_mesh = GenerateMesh();
         mesh_filter_terrain.mesh = new_mesh;
+        mesh_filter_tacview.mesh = new_mesh;
         mesh_collider.sharedMesh = new_mesh;
 
         try
