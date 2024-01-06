@@ -50,7 +50,7 @@ MonoBehaviour:
   mesh_filter_terrain: {fileID: 3305150158308407263}
   mesh_renderer_terrain: {fileID: 5055198106224060819}
   mesh_collider: {fileID: 2332938233630548424}
-  terrain_material: {fileID: 2100000, guid: 02d7c2b53c2f5e74b818628dc63edd31, type: 2}
+  terrain_material: {fileID: 2100000, guid: 0d503bf6be1356d48b2daa066f1eb363, type: 2}
   grid_resolution: 128
   mesh_size: 1800
   drop_off_start: 700
