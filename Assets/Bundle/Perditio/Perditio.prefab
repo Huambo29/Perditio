@@ -47,13 +47,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a9b9731125263449b6b7c007e74be0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrain_material: {fileID: 2100000, guid: 0d503bf6be1356d48b2daa066f1eb363, type: 2}
+  terrain_material: {fileID: 2100000, guid: 02d7c2b53c2f5e74b818628dc63edd31, type: 2}
   grid_resolution: 128
   mesh_size: 1800
   drop_off_start: 700
   drop_off_end: 1100
   octaves: 10
-  perlin_scale: 40
+  perlin_scale: 0.3125
   octaves_persistence: 0.8
   octaves_lacunarity: 1.25
   density_cut_off: 0

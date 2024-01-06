@@ -61,6 +61,8 @@ public class ProceduralTerrain : MonoBehaviour
 
     float PerlinOctaves(Vector3 pos)
     {
+        pos /= grid_resolution;
+
         float result = 0f;
 
         float amplitude = 1f;
@@ -176,6 +178,11 @@ public class ProceduralTerrain : MonoBehaviour
             return result / surface_edges_n;
         }
         return GetPositionFromGrid(root_position);
+    }
+
+    int AppendVertex(int x, int y, int z)
+    {
+
     }
 
     Mesh GenerateMesh()
@@ -322,11 +329,44 @@ public class ProceduralTerrain : MonoBehaviour
         new_mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         new_mesh.vertices = vertices.ToArray();
         new_mesh.triangles = triangles.ToArray();
+
+        //new_mesh = JoinVertices(new_mesh); // slow af
+
         new_mesh.RecalculateBounds();
         new_mesh.RecalculateNormals();
         new_mesh.RecalculateTangents();
 
         return new_mesh;
+    }
+
+    Mesh JoinVertices(Mesh mesh)
+    {
+        Dictionary<int, int> duplicates_table = new Dictionary<int, int>();
+
+        for (int i = 0; i < mesh.vertices.Length; i++)
+        {
+            if (!duplicates_table.ContainsKey(i))
+            {
+                for (int k = i; k < mesh.vertices.Length; k++)
+                {
+                    if ((mesh.vertices[i] - mesh.vertices[k]).sqrMagnitude <= 0.0000001f)
+                    {
+                        duplicates_table[k] = i;
+                    }
+                }
+            }
+        }
+
+        int new_value;
+        for (int i = 0; i < mesh.triangles.Length; i++)
+        {
+            if (duplicates_table.TryGetValue(mesh.triangles[i], out new_value))
+            {
+                mesh.triangles[i] = new_value;
+            }
+        }
+
+        return mesh;
     }
 
     void LogEntireFucker(Transform child_transform, int depth = 0)
@@ -479,5 +519,16 @@ public class ProceduralTerrain : MonoBehaviour
         Mesh new_mesh = GenerateMesh();
         mesh_filter.mesh = new_mesh;
         mesh_collider.sharedMesh = new_mesh;
+
+        try
+        {
+            Game.Map.SpacePartitioner space_partitioner = GameObject.Find("_SPACE PARTITIONER_").GetComponent<Game.Map.SpacePartitioner>();
+            space_partitioner.Editor_Build();
+            space_partitioner.Editor_BuildGraph();
+        }
+        catch (Exception e)
+        {
+            Debug.Log(string.Format("Space Partitioner Failed With: {0}", e.ToString()));
+        }
     }
 }
