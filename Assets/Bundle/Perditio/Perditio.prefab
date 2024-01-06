@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 7636293992298563663}
   - component: {fileID: 6666377069613957148}
   - component: {fileID: 367870303147655905}
-  - component: {fileID: 3861364600561497356}
-  - component: {fileID: 6357920509635108692}
-  - component: {fileID: 6135518425309175866}
+  - component: {fileID: 3305150158308407263}
+  - component: {fileID: 5055198106224060819}
+  - component: {fileID: 2332938233630548424}
   m_Layer: 9
   m_Name: ProceduralTerrain
   m_TagString: Untagged
@@ -33,7 +33,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4858359420844789412}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6666377069613957148
 MonoBehaviour:
@@ -47,6 +47,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a9b9731125263449b6b7c007e74be0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mesh_filter_terrain: {fileID: 3305150158308407263}
+  mesh_renderer_terrain: {fileID: 5055198106224060819}
+  mesh_collider: {fileID: 2332938233630548424}
   terrain_material: {fileID: 2100000, guid: 02d7c2b53c2f5e74b818628dc63edd31, type: 2}
   grid_resolution: 128
   mesh_size: 1800
@@ -76,7 +79,7 @@ MonoBehaviour:
   visible: 0
   m_AssetId: 1064893e28ce4b63b78ba43b0533d01a
   hasSpawned: 0
---- !u!33 &3861364600561497356
+--- !u!33 &3305150158308407263
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -84,7 +87,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 205675839936231224}
   m_Mesh: {fileID: 0}
---- !u!23 &6357920509635108692
+--- !u!23 &5055198106224060819
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -125,7 +128,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &6135518425309175866
+--- !u!64 &2332938233630548424
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -249,8 +252,8 @@ Transform:
   - {fileID: 4858359422169055149}
   - {fileID: 4858359421754205981}
   - {fileID: 3747415602938667992}
-  - {fileID: 7717859237393158302}
   - {fileID: 7636293992298563663}
+  - {fileID: 7717859237393158302}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -810,7 +813,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4858359420844789412}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3466203549071062226
 MeshFilter:
@@ -839,7 +842,7 @@ MeshRenderer:
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 608cb173a4dc82748903e78d772f4a47, type: 2}
+  - {fileID: 2100000, guid: 7c1a6016b97350b48889cb0becef5d02, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

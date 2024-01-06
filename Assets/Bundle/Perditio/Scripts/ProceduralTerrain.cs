@@ -7,8 +7,12 @@ using Mirror;
 
 public class ProceduralTerrain : MonoBehaviour
 {
-    MeshFilter mesh_filter;
-    MeshRenderer mesh_renderer;
+    [Header("References")]
+    [SerializeField]
+    MeshFilter mesh_filter_terrain;
+    [SerializeField]
+    MeshRenderer mesh_renderer_terrain;
+    [SerializeField]
     MeshCollider mesh_collider;
 
     [SerializeField]
@@ -180,9 +184,18 @@ public class ProceduralTerrain : MonoBehaviour
         return GetPositionFromGrid(root_position);
     }
 
-    int AppendVertex(int x, int y, int z)
-    {
+    int[,,] middle_points;
 
+    int AppendVertex(int x, int y, int z, ref List<Vector3> vertices)
+    {
+        if (middle_points[x, y, z] >= 0)
+        {
+            return middle_points[x, y, z];
+        }
+
+        vertices.Add(GetSurfacePosition(new Vector3Int(x, y, z)));
+        middle_points[x, y, z] = vertices.Count - 1;
+        return vertices.Count - 1;
     }
 
     Mesh GenerateMesh()
@@ -192,7 +205,19 @@ public class ProceduralTerrain : MonoBehaviour
         Debug.Log("flag 8");
         List<int> triangles = new List<int>();
 
-        Debug.Log("flag 9");
+        middle_points = new int[grid_resolution, grid_resolution, grid_resolution];
+        for (int x = 0; x < grid_resolution; x++)
+        {
+            for (int y = 0; y < grid_resolution; y++)
+            {
+                for (int z = 0; z < grid_resolution; z++)
+                {
+                    middle_points[x, y, z] = -1;
+                }
+            }
+        }
+
+                    Debug.Log("flag 9");
         float half_grid_size = (mesh_size * 0.5f) / grid_resolution;
 
         Debug.Log("flag 10");
@@ -233,91 +258,93 @@ public class ProceduralTerrain : MonoBehaviour
 
                     if (x < grid_resolution - 1 && (density_field[x + 1, y, z] >= density_cut_off != root_inside))
                     {
-                        int vertices_offset = vertices.Count;
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x, y, z - 1)));
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x, y, z)));
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x, y - 1, z)));
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x, y - 1, z - 1)));
+                        int[] quad_vertices = new int[4] {
+                            AppendVertex(x, y, z - 1, ref vertices),
+                            AppendVertex(x, y, z, ref vertices),
+                            AppendVertex(x, y - 1, z, ref vertices),
+                            AppendVertex(x, y - 1, z - 1, ref vertices)
+                        };
 
                         if (root_inside)
                         {
-                            triangles.Add(vertices_offset);
-                            triangles.Add(vertices_offset + 1);
-                            triangles.Add(vertices_offset + 2);
+                            triangles.Add(quad_vertices[0]);
+                            triangles.Add(quad_vertices[1]);
+                            triangles.Add(quad_vertices[2]);
 
-                            triangles.Add(vertices_offset + 2);
-                            triangles.Add(vertices_offset + 3);
-                            triangles.Add(vertices_offset);
+                            triangles.Add(quad_vertices[2]);
+                            triangles.Add(quad_vertices[3]);
+                            triangles.Add(quad_vertices[0]);
                         } else
                         {
-                            triangles.Add(vertices_offset + 2);
-                            triangles.Add(vertices_offset + 1);
-                            triangles.Add(vertices_offset);
+                            triangles.Add(quad_vertices[2]);
+                            triangles.Add(quad_vertices[1]);
+                            triangles.Add(quad_vertices[0]);
 
-                            triangles.Add(vertices_offset);
-                            triangles.Add(vertices_offset + 3);
-                            triangles.Add(vertices_offset + 2);
+                            triangles.Add(quad_vertices[0]);
+                            triangles.Add(quad_vertices[3]);
+                            triangles.Add(quad_vertices[2]);
                         }
                     }
 
                     if (y < grid_resolution - 1 && (density_field[x, y + 1, z] >= density_cut_off != root_inside))
                     {
-                        int vertices_offset = vertices.Count;
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x, y, z - 1)));
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x - 1, y, z - 1)));
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x - 1, y, z)));
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x, y, z)));
-
+                        int[] quad_vertices = new int[4] {
+                            AppendVertex(x, y, z - 1, ref vertices),
+                            AppendVertex(x - 1, y, z - 1, ref vertices),
+                            AppendVertex(x - 1, y, z, ref vertices),
+                            AppendVertex(x, y, z, ref vertices)
+                        };
 
                         if (root_inside)
                         {
-                            triangles.Add(vertices_offset);
-                            triangles.Add(vertices_offset + 1);
-                            triangles.Add(vertices_offset + 2);
+                            triangles.Add(quad_vertices[0]);
+                            triangles.Add(quad_vertices[1]);
+                            triangles.Add(quad_vertices[2]);
 
-                            triangles.Add(vertices_offset + 2);
-                            triangles.Add(vertices_offset + 3);
-                            triangles.Add(vertices_offset);
+                            triangles.Add(quad_vertices[2]);
+                            triangles.Add(quad_vertices[3]);
+                            triangles.Add(quad_vertices[0]);
                         }
                         else
                         {
-                            triangles.Add(vertices_offset + 2);
-                            triangles.Add(vertices_offset + 1);
-                            triangles.Add(vertices_offset);
+                            triangles.Add(quad_vertices[2]);
+                            triangles.Add(quad_vertices[1]);
+                            triangles.Add(quad_vertices[0]);
 
-                            triangles.Add(vertices_offset);
-                            triangles.Add(vertices_offset + 3);
-                            triangles.Add(vertices_offset + 2);
+                            triangles.Add(quad_vertices[0]);
+                            triangles.Add(quad_vertices[3]);
+                            triangles.Add(quad_vertices[2]);
                         }
                     }
 
                     if (z < grid_resolution - 1 && (density_field[x, y, z + 1] >= density_cut_off != root_inside))
                     {
-                        int vertices_offset = vertices.Count;
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x, y, z)));
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x - 1, y, z)));
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x - 1, y - 1, z)));
-                        vertices.Add(GetSurfacePosition(new Vector3Int(x, y - 1, z)));
+                        int[] quad_vertices = new int[4] {
+                            AppendVertex(x, y, z, ref vertices),
+                            AppendVertex(x - 1, y, z, ref vertices),
+                            AppendVertex(x - 1, y - 1, z, ref vertices),
+                            AppendVertex(x, y - 1, z, ref vertices)
+                        };
 
                         if (root_inside)
                         {
-                            triangles.Add(vertices_offset);
-                            triangles.Add(vertices_offset + 1);
-                            triangles.Add(vertices_offset + 2);
+                            triangles.Add(quad_vertices[0]);
+                            triangles.Add(quad_vertices[1]);
+                            triangles.Add(quad_vertices[2]);
 
-                            triangles.Add(vertices_offset + 2);
-                            triangles.Add(vertices_offset + 3);
-                            triangles.Add(vertices_offset);
+                            triangles.Add(quad_vertices[2]);
+                            triangles.Add(quad_vertices[3]);
+                            triangles.Add(quad_vertices[0]);
                         }
                         else
                         {
-                            triangles.Add(vertices_offset + 2);
-                            triangles.Add(vertices_offset + 1);
-                            triangles.Add(vertices_offset);
+                            triangles.Add(quad_vertices[2]);
+                            triangles.Add(quad_vertices[1]);
+                            triangles.Add(quad_vertices[0]);
 
-                            triangles.Add(vertices_offset);
-                            triangles.Add(vertices_offset + 3);
-                            triangles.Add(vertices_offset + 2);
+                            triangles.Add(quad_vertices[0]);
+                            triangles.Add(quad_vertices[3]);
+                            triangles.Add(quad_vertices[2]);
                         }
                     }
                 }
@@ -429,13 +456,7 @@ public class ProceduralTerrain : MonoBehaviour
 
     void Start()
     {
-        mesh_filter = gameObject.GetComponent<MeshFilter>();
-        Debug.Log("flag 1");
-        mesh_renderer = gameObject.GetComponent<MeshRenderer>();
-        Debug.Log("flag 2");
-        mesh_collider = gameObject.GetComponent<MeshCollider>();
-        Debug.Log("flag 3");
-        mesh_renderer.material = terrain_material;
+        mesh_renderer_terrain.material = terrain_material;
 
         battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
 
@@ -494,7 +515,9 @@ public class ProceduralTerrain : MonoBehaviour
 
         perlin_offset = new Vector3(NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f));
         perlin_rotation = NextQuaternion();
-        density_cut_off = NextFloat(0.48f, 0.5f);
+
+        density_cut_off = NextFloat(0.48f, 0.49f);
+        Debug.Log(string.Format("density_cut_off: {0}", density_cut_off));
 
         for (int x = 0; x < grid_resolution; x++)
         {
@@ -517,7 +540,7 @@ public class ProceduralTerrain : MonoBehaviour
         }
 
         Mesh new_mesh = GenerateMesh();
-        mesh_filter.mesh = new_mesh;
+        mesh_filter_terrain.mesh = new_mesh;
         mesh_collider.sharedMesh = new_mesh;
 
         try

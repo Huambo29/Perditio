@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 4016849391
+CRC: 4221775387
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 2c503739dab88590ab947759a96db4bd
+    Hash: 631b01eea44c2ef907e504e3ca4838f3
   TypeTreeHash:
     serializedVersion: 2
-    Hash: eb26f52da867e5f78c6a953c39855990
+    Hash: d89fd681307309770eed916b37cd5166
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -46,12 +46,12 @@ ClassTypes:
 SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Bundle/Perditio/manifest.xml
-- Assets/Bundle/Perditio/Materials/test.mat
-- Assets/Bundle/Perditio/Materials/TacView.mat
+- Assets/Bundle/Perditio/Materials/AsteroidMaterial.mat
 - Assets/Bundle/Perditio/PerditioOctree.asset
-- Assets/Bundle/Perditio/Materials/BasicTerrain.mat
-- Assets/Bundle/Perditio/miniature.png
 - Assets/Bundle/Perditio/Materials/TacviewElevationFix.mat
-- Assets/Bundle/Perditio/Materials/TacviewTerrain.mat
+- Assets/Bundle/Perditio/Materials/AsteroidShader.shadergraph
+- Assets/Bundle/Perditio/Materials/BasicTerrain.mat
+- Assets/Bundle/Perditio/Materials/TacviewFix.mat
+- Assets/Bundle/Perditio/miniature.png
 - Assets/Bundle/Perditio/Perditio.prefab
 Dependencies: []
