@@ -52,7 +52,7 @@ MonoBehaviour:
   mesh_filter_tacview: {fileID: 7450314322422948754}
   mesh_renderer_tacview: {fileID: 592338761576550666}
   mesh_collider: {fileID: 2978356292916638628}
-  terrain_material: {fileID: 2100000, guid: 0d503bf6be1356d48b2daa066f1eb363, type: 2}
+  terrain_material: {fileID: 2100000, guid: 02d7c2b53c2f5e74b818628dc63edd31, type: 2}
   tacview_material: {fileID: 2100000, guid: 0d503bf6be1356d48b2daa066f1eb363, type: 2}
   lighting: {fileID: 2501245912024585361}
   grid_resolution: 128
