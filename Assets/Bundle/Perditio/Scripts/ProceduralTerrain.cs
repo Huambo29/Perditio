@@ -9,6 +9,13 @@ public class ProceduralTerrain : MonoBehaviour
 {
     [Header("References")]
     [SerializeField]
+    Transform team_a_home;
+    [SerializeField]
+    Transform team_b_home;
+    [SerializeField]
+    Transform central_objective;
+
+    [SerializeField]
     MeshFilter mesh_filter_terrain;
     [SerializeField]
     MeshRenderer mesh_renderer_terrain;
@@ -21,6 +28,9 @@ public class ProceduralTerrain : MonoBehaviour
 
     [SerializeField]
     Material terrain_material;
+    [SerializeField]
+    Material terrain_material_performance;
+
     [SerializeField]
     Material tacview_material;
 
@@ -54,8 +64,9 @@ public class ProceduralTerrain : MonoBehaviour
     Quaternion perlin_rotation;
 
     float[,,] density_field;
-    Vector3[] DistributedObjectives;
+    List<Vector3> scenario_interest_points = new List<Vector3>();
     Game.Map.Battlespace battlespace;
+
 
     System.Random rand;
 
@@ -106,11 +117,9 @@ public class ProceduralTerrain : MonoBehaviour
 
         Vector3 sample_grid_positon = pos / grid_resolution - Vector3.one * 0.5f;
 
-        Game.Map.Battlespace battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
-
-        for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
+        foreach (Vector3 scenario_point in scenario_interest_points)
         {
-            Vector3 cap_grid_position = battlespace.DistributedObjectives[i] / mesh_size;
+            Vector3 cap_grid_position = scenario_point / mesh_size;
 
             float center_distance = Vector3.Distance(sample_grid_positon, cap_grid_position) * mesh_size;
             float drop_off = 1f - ((Mathf.Max(cap_drop_off_start, Mathf.Min(center_distance, cap_drop_off_end)) - cap_drop_off_start) / (cap_drop_off_end - cap_drop_off_start));
@@ -463,6 +472,131 @@ public class ProceduralTerrain : MonoBehaviour
         }
     }
 
+    public static T GetPrivateValue<T>(object obj, string fieldName)
+    {
+        return (T)obj.GetType().GetField(fieldName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(obj);
+    }
+
+    String GetScenario()
+    {
+        try
+        {
+            Game.SkirmishGameManager game_manager = GameObject.Find("_SKIRMISH GAME MANAGER_").GetComponent<Game.SkirmishGameManager>();
+            String scenario_name = GetPrivateValue<Missions.ScenarioGraph>(game_manager, "_clientScenario").ScenarioName;
+            Debug.Log(string.Format("scenario: {0}", scenario_name));
+            return scenario_name;  
+        }
+        catch (Exception e)
+        {
+            Debug.Log(string.Format("Finding SKIRMISH GAME MANAGER Failed With: {0}", e.ToString()));
+            return "Control";
+        }
+    }
+
+    void SetupScenario()
+    {
+        switch (GetScenario())
+        {
+            case "Annihilation":
+                break;
+            case "Capture The Flag":
+                scenario_interest_points.Add(team_a_home.position);
+                scenario_interest_points.Add(team_b_home.position);
+                break;
+            case "Centerflag":
+                scenario_interest_points.Add(team_a_home.position);
+                scenario_interest_points.Add(team_b_home.position);
+                scenario_interest_points.Add(central_objective.position);
+                break;
+            case "Control":
+            case "Tug Of War":
+                for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
+                {
+                    scenario_interest_points.Add(battlespace.DistributedObjectives[i]);
+                }
+                break;
+            case "Station Capture":
+                scenario_interest_points.Add(team_b_home.position);
+                break;
+            default:
+                Debug.Log("Unknown Scenario");
+                for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
+                {
+                    scenario_interest_points.Add(battlespace.DistributedObjectives[i]);
+                }
+                break;
+        }
+    }
+
+    void RandomizeScenarioPoints()
+    {
+        team_a_home.position += NextUnitVector() * 100f;
+        team_b_home.position = -team_a_home.position;
+        //central_objective.position += NextUnitVector() * 100f;
+
+        for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
+        {
+            if (i == 0)
+            {
+                battlespace.DistributedObjectives[i] = NextUnitVector() * NextFloat(0f, mesh_size / 2f * 0.1f);
+            }
+            else if (i % 2 == 1)
+            {
+                bool good_placement;
+                do
+                {
+                    Vector3 random_vec = NextUnitVector();
+                    float random_vec_lenght = NextFloat(mesh_size / 2f * 0.1f + 400f, mesh_size / 2f - 200f);
+                    battlespace.DistributedObjectives[i] = random_vec * random_vec_lenght;
+                    good_placement = true;
+                    for (int k = 0; k < i; k++)
+                    {
+                        if (Vector3.Distance(battlespace.DistributedObjectives[k], battlespace.DistributedObjectives[i]) <= 500f)
+                        {
+                            good_placement = false;
+                            break;
+                        }
+                    }
+                } while (!good_placement);
+            }
+            else
+            {
+                battlespace.DistributedObjectives[i] = -battlespace.DistributedObjectives[i - 1];
+            }
+        }
+    }
+
+    void SetupDensityField()
+    {
+        density_field = new float[grid_resolution, grid_resolution, grid_resolution];
+
+        perlin_offset = new Vector3(NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f));
+        perlin_rotation = NextQuaternion();
+
+        density_cut_off = NextFloat(0.48f, 0.49f);
+        Debug.Log(string.Format("density_cut_off: {0}", density_cut_off));
+
+        for (int x = 0; x < grid_resolution; x++)
+        {
+            for (int y = 0; y < grid_resolution; y++)
+            {
+                for (int z = 0; z < grid_resolution; z++)
+                {
+                    density_field[x, y, z] = CalculateDensity(x, y, z);
+
+                    if (
+                        x == 0 || x == grid_resolution - 1 ||
+                        y == 0 || y == grid_resolution - 1 ||
+                        z == 0 || z == grid_resolution - 1
+                    )
+                    {
+                        density_field[x, y, z] = 0f;
+                    }
+                }
+            }
+        }
+    }
+
     void Start()
     {
         Debug.Log("Flag 1");
@@ -492,65 +626,9 @@ public class ProceduralTerrain : MonoBehaviour
         
         rand = new System.Random(random_seed);
 
-        for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
-        {
-            if (i == 0)
-            {
-                battlespace.DistributedObjectives[i] = NextUnitVector() * NextFloat(0f, mesh_size / 2f * 0.1f);
-            }
-            else if (i % 2 == 1)
-            {
-                bool good_placement;
-                do
-                {
-                    Vector3 random_vec = NextUnitVector();
-                    float random_vec_lenght = NextFloat(mesh_size / 2f * 0.1f + 400f, mesh_size / 2f - 200f);
-                    Debug.Log("random_vec: " + random_vec + " random_vec_lenght " + random_vec_lenght);
-                    battlespace.DistributedObjectives[i] = random_vec * random_vec_lenght;
-                    good_placement = true;
-                    for (int k = 0; k < i; k++)
-                    {
-                        if (Vector3.Distance(battlespace.DistributedObjectives[k], battlespace.DistributedObjectives[i]) <= 500f)
-                        {
-                            good_placement = false;
-                            break;
-                        }
-                    }
-                } while (!good_placement);
-            }
-            else
-            {
-                battlespace.DistributedObjectives[i] = -battlespace.DistributedObjectives[i - 1];
-            }
-        }
-
-        density_field = new float[grid_resolution, grid_resolution, grid_resolution];
-
-        perlin_offset = new Vector3(NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f));
-        perlin_rotation = NextQuaternion();
-
-        density_cut_off = NextFloat(0.48f, 0.49f);
-        Debug.Log(string.Format("density_cut_off: {0}", density_cut_off));
-
-        for (int x = 0; x < grid_resolution; x++)
-        {
-            for (int y = 0; y < grid_resolution; y++)
-            {
-                for (int z = 0; z < grid_resolution; z++)
-                {
-                    density_field[x, y, z] = CalculateDensity(x, y, z);
-
-                    if (
-                        x == 0 || x == grid_resolution - 1 ||
-                        y == 0 || y == grid_resolution - 1 ||
-                        z == 0 || z == grid_resolution - 1
-                    )
-                    {
-                        density_field[x, y, z] = 0f;
-                    }
-                }
-            }
-        }
+        RandomizeScenarioPoints();
+        SetupScenario();
+        SetupDensityField();
 
         Mesh new_mesh = GenerateMesh();
         mesh_filter_terrain.mesh = new_mesh;
@@ -567,7 +645,25 @@ public class ProceduralTerrain : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.Log(string.Format("Space Partitioner Failed With: {0}", e.ToString()));
+            Debug.Log(string.Format("Finding Space Partitioner Failed With: {0}", e.ToString()));
+        }
+    }
+
+    bool performance_mode = false;
+    void Update()
+    {
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.Tilde))
+        {
+            if (performance_mode)
+            {
+                mesh_renderer_terrain.material = terrain_material;
+                performance_mode = false;
+            }
+            else
+            {
+                performance_mode = true;
+                mesh_renderer_terrain.material = terrain_material_performance;
+            }
         }
     }
 }
