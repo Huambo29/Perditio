@@ -22,11 +22,11 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: AsteroidMaterial
   m_Shader: {fileID: -6465566751694194690, guid: 80c09e9cf54b14546830d353d36c3a85, type: 3}
-  m_ShaderKeywords: _DISABLE_SSR_TRANSPARENT
+  m_ShaderKeywords: _DISABLE_DECALS _DISABLE_SSR_TRANSPARENT
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2225
+  m_CustomRenderQueue: 2000
   stringTagMap:
     MotionVector: User
   disabledShaderPasses:
@@ -134,8 +134,9 @@ Material:
     - Vector1_1ce312f28994468f8582651841ec5606: 0
     - Vector1_2a7df9d9c5324e59b7c21a45e557d4dd: 0
     - Vector1_336dd59388fa405f93607a4a57c25c28: 0.1
-    - Vector1_786604aac40047f5840abfc7692c631f: 1
-    - Vector1_8148f87906054999a80d12c00efb9098: 0.1
+    - Vector1_469846ca952040529ca6835790038c62: 1
+    - Vector1_786604aac40047f5840abfc7692c631f: 8
+    - Vector1_8148f87906054999a80d12c00efb9098: 0.025
     - Vector1_be2c99e0fb894aeea4f72d26fe3b0821: 0.05
     - Vector1_ea7d22e87b754abdbb96d5c14e11781a: 1
     - _AORemapMax: 1
@@ -228,7 +229,7 @@ Material:
     - _StencilWriteMaskGBuffer: 14
     - _StencilWriteMaskMV: 40
     - _SubsurfaceMask: 1
-    - _SupportDecals: 1
+    - _SupportDecals: 0
     - _SurfaceType: 0
     - _TexWorldScale: 1
     - _TexWorldScaleEmissive: 1
