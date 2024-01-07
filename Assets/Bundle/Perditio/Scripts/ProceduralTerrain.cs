@@ -24,6 +24,9 @@ public class ProceduralTerrain : MonoBehaviour
     [SerializeField]
     Material tacview_material;
 
+    [SerializeField]
+    GameObject lighting;
+
     [Header("Procedural Settings")]
     [SerializeField]
     int grid_resolution = 128;
@@ -553,6 +556,8 @@ public class ProceduralTerrain : MonoBehaviour
         mesh_filter_terrain.mesh = new_mesh;
         mesh_filter_tacview.mesh = new_mesh;
         mesh_collider.sharedMesh = new_mesh;
+
+        lighting.GetComponent<Transform>().rotation = NextQuaternion();
 
         try
         {
