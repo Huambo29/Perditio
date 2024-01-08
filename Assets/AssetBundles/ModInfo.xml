@@ -1,8 +1,10 @@
 <?xml version="1.0"?>
 <ModInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ModName>Perditio</ModName>
-  <ModDescription>wip</ModDescription>
-  <ModVer>0.4</ModVer>
+  <ModDescription>Fully procedural map generation. Supports ai and multiplayer.
+  ctrl+shift+"," to toggle shader performance mode 
+  ctrl+shift+"." to toggle default lighting mode.</ModDescription>
+  <ModVer>1.0</ModVer>
   <Assemblies>
     <string>Perditio.dll</string>
   </Assemblies>

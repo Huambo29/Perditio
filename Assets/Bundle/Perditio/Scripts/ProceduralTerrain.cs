@@ -219,9 +219,9 @@ public class ProceduralTerrain : MonoBehaviour
 
     Mesh GenerateMesh()
     {
-        Debug.Log("flag 7");
+        Debug.Log("Perditio: flag 7");
         List<Vector3> vertices = new List<Vector3>();
-        Debug.Log("flag 8");
+        Debug.Log("Perditio: flag 8");
         List<int> triangles = new List<int>();
 
         middle_points = new int[grid_resolution, grid_resolution, grid_resolution];
@@ -236,10 +236,10 @@ public class ProceduralTerrain : MonoBehaviour
             }
         }
 
-                    Debug.Log("flag 9");
+        Debug.Log("Perditio: flag 9");
         float half_grid_size = (mesh_size * 0.5f) / grid_resolution;
 
-        Debug.Log("flag 10");
+        Debug.Log("Perditio: flag 10");
         Vector3[] offsets_x = new Vector3[4]
         {
             new Vector3(half_grid_size, half_grid_size, -half_grid_size),
@@ -264,8 +264,8 @@ public class ProceduralTerrain : MonoBehaviour
             new Vector3(half_grid_size, -half_grid_size, half_grid_size)
         };
 
-        Debug.Log("flag 11");
-        Debug.Log("flag 12 " + density_field[0, 0, 0]);
+        Debug.Log("Perditio: flag 11");
+        Debug.Log("Perditio: flag 12 " + density_field[0, 0, 0]);
         for (int x = 0; x < grid_resolution; x++)
         {
             for (int y = 0; y < grid_resolution; y++)
@@ -370,7 +370,7 @@ public class ProceduralTerrain : MonoBehaviour
             }
         }
 
-        Debug.Log("flag 13");
+        Debug.Log("Perditio: flag 13");
         Mesh new_mesh = new Mesh();
         new_mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         new_mesh.vertices = vertices.ToArray();
@@ -469,7 +469,7 @@ public class ProceduralTerrain : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.Log(string.Format("Quantum Console Failed With: {0}", e.ToString()));
+            Debug.Log(string.Format("Perditio: Quantum Console Failed With: {0}", e.ToString()));
         }
     }
 
@@ -484,12 +484,12 @@ public class ProceduralTerrain : MonoBehaviour
         {
             Game.SkirmishGameManager game_manager = GameObject.Find("_SKIRMISH GAME MANAGER_").GetComponent<Game.SkirmishGameManager>();
             String scenario_name = GetPrivateValue<Missions.ScenarioGraph>(game_manager, "_clientScenario").ScenarioName;
-            Debug.Log(string.Format("scenario: {0}", scenario_name));
+            Debug.Log(string.Format("Perditio: scenario: {0}", scenario_name));
             return scenario_name;  
         }
         catch (Exception e)
         {
-            Debug.Log(string.Format("Finding SKIRMISH GAME MANAGER Failed With: {0}", e.ToString()));
+            Debug.Log(string.Format("Perditio: Finding SKIRMISH GAME MANAGER Failed With: {0}", e.ToString()));
             return "Control";
         }
     }
@@ -520,7 +520,7 @@ public class ProceduralTerrain : MonoBehaviour
                 scenario_interest_points.Add(team_b_home.position);
                 break;
             default:
-                Debug.Log("Unknown Scenario");
+                Debug.Log("Perditio: Unknown Scenario");
                 for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
                 {
                     scenario_interest_points.Add(battlespace.DistributedObjectives[i]);
@@ -575,7 +575,7 @@ public class ProceduralTerrain : MonoBehaviour
         perlin_rotation = NextQuaternion();
 
         density_cut_off = NextFloat(0.48f, 0.49f);
-        Debug.Log(string.Format("density_cut_off: {0}", density_cut_off));
+        Debug.Log(string.Format("Perditio: density_cut_off: {0}", density_cut_off));
 
         for (int x = 0; x < grid_resolution; x++)
         {
@@ -600,6 +600,7 @@ public class ProceduralTerrain : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("Perditio Starte");
         mesh_renderer_terrain.material = terrain_material;
         mesh_renderer_tacview.material = tacview_material;
         battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
@@ -614,11 +615,11 @@ public class ProceduralTerrain : MonoBehaviour
         catch (Exception e)
         {
             random_seed = (int)DateTimeOffset.Now.ToUnixTimeSeconds();
-            Debug.Log(string.Format("Getting lobby id failed with: {0}", e.ToString()));
+            Debug.Log(string.Format("Perditio: Getting lobby id failed with: {0}", e.ToString()));
         }
         
 
-        Debug.Log(string.Format("Map Seed: {0}", random_seed));
+        Debug.Log(string.Format("Perditio: Map Seed: {0}", random_seed));
         LogQuantumConsole(string.Format("Map Seed: {0}", random_seed));
         
         rand = new System.Random(random_seed);
@@ -642,12 +643,19 @@ public class ProceduralTerrain : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.Log(string.Format("Finding Space Partitioner Failed With: {0}", e.ToString()));
+            Debug.Log(string.Format("Perditio: Finding Space Partitioner Failed With: {0}", e.ToString()));
         }
 
-        default_light = GameObject.Find("Default Skirmish Map Lighting");
-        lighting.SetActive(true);
-        default_light.SetActive(false);
+        try
+        {
+            default_light = GameObject.Find("Default Skirmish Map Lighting");
+            lighting.SetActive(true);
+            default_light.SetActive(false);
+        }
+        catch (Exception e)
+        {
+            Debug.Log(string.Format("Perditio: Finding Default Skirmish Map Lighting Failed With: {0}", e.ToString()));
+        }
     }
 
     bool performance_mode = false;
@@ -659,13 +667,13 @@ public class ProceduralTerrain : MonoBehaviour
         {
             if (performance_mode)
             {
-                Debug.Log("Performance Mode Disabled");
+                Debug.Log("Perditio: Performance Mode Disabled");
                 mesh_renderer_terrain.material = terrain_material;
                 performance_mode = false;
             }
             else
             {
-                Debug.Log("Performance Mode Enabled");
+                Debug.Log("Perditio: Performance Mode Enabled");
                 performance_mode = true;
                 mesh_renderer_terrain.material = terrain_material_performance;
             }
@@ -675,7 +683,7 @@ public class ProceduralTerrain : MonoBehaviour
         {
             if (default_lighting_mode)
             {
-                Debug.Log("Default Lighting Mode Disabled");
+                Debug.Log("Perditio: Default Lighting Mode Disabled");
                 default_lighting_mode = false;
 
                 lighting.SetActive(true);
@@ -683,7 +691,7 @@ public class ProceduralTerrain : MonoBehaviour
             }
             else
             {
-                Debug.Log("Default Lighting Mode Enabled");
+                Debug.Log("Perditio: Default Lighting Mode Enabled");
                 
                 default_lighting_mode = true;
 
