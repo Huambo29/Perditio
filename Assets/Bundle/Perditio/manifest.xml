@@ -3,6 +3,7 @@
   <BasePath>Assets/Bundle/Perditio</BasePath>
   <Namespace>Perditio</Namespace>
   <Maps>
-    <Entry Name="Perditio" Address="Perditio.prefab"/>
+    <Entry Name="Perditio (Procedural)" Address="Perditio.prefab"/>
+    <Entry Name="Perditio Eye (Procedural)" Address="Perditio Eye.prefab"/>
   </Maps>
 </BundleManifest>

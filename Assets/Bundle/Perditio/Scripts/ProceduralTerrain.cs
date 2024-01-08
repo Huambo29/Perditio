@@ -66,6 +66,7 @@ public class ProceduralTerrain : MonoBehaviour
     float[,,] density_field;
     List<Vector3> scenario_interest_points = new List<Vector3>();
     Game.Map.Battlespace battlespace;
+    GameObject default_light;
 
 
     System.Random rand;
@@ -530,7 +531,7 @@ public class ProceduralTerrain : MonoBehaviour
 
     void RandomizeScenarioPoints()
     {
-        team_a_home.position += NextUnitVector() * 100f;
+        team_a_home.position += NextUnitVector() * (mesh_size / 18f);
         team_b_home.position = -team_a_home.position;
         //central_objective.position += NextUnitVector() * 100f;
 
@@ -538,7 +539,7 @@ public class ProceduralTerrain : MonoBehaviour
         {
             if (i == 0)
             {
-                battlespace.DistributedObjectives[i] = NextUnitVector() * NextFloat(0f, mesh_size / 2f * 0.1f);
+                battlespace.DistributedObjectives[i] = new Vector3(NextFloat(-mesh_size / 2f * 0.5f, mesh_size / 2f * 0.5f), NextFloat(-mesh_size / 2f * 0.5f, mesh_size / 2f * 0.5f), 0f);
             }
             else if (i % 2 == 1)
             {
@@ -546,7 +547,7 @@ public class ProceduralTerrain : MonoBehaviour
                 do
                 {
                     Vector3 random_vec = NextUnitVector();
-                    float random_vec_lenght = NextFloat(mesh_size / 2f * 0.1f + 400f, mesh_size / 2f - 200f);
+                    float random_vec_lenght = NextFloat(mesh_size / 2f * 0.1f + mesh_size / 4.5f, mesh_size / 2f - mesh_size / 9f);
                     battlespace.DistributedObjectives[i] = random_vec * random_vec_lenght;
                     good_placement = true;
                     for (int k = 0; k < i; k++)
@@ -599,16 +600,12 @@ public class ProceduralTerrain : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Flag 1");
         mesh_renderer_terrain.material = terrain_material;
-        Debug.Log("Flag 2");
         mesh_renderer_tacview.material = tacview_material;
-
-        Debug.Log("Flag 3");
         battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
 
-        LogEntireScene();
-        //Game.SkirmishGameManager game_manager = GameObject.Find("_SKIRMISH GAME MANAGER_").GetComponent<Game.SkirmishGameManager>();
+        //LogEntireScene();
+
         int random_seed;
         try
         {
@@ -647,22 +644,51 @@ public class ProceduralTerrain : MonoBehaviour
         {
             Debug.Log(string.Format("Finding Space Partitioner Failed With: {0}", e.ToString()));
         }
+
+        default_light = GameObject.Find("Default Skirmish Map Lighting");
+        lighting.SetActive(true);
+        default_light.SetActive(false);
     }
 
     bool performance_mode = false;
+    bool default_lighting_mode = true;
+
     void Update()
     {
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.Tilde))
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.Comma))
         {
             if (performance_mode)
             {
+                Debug.Log("Performance Mode Disabled");
                 mesh_renderer_terrain.material = terrain_material;
                 performance_mode = false;
             }
             else
             {
+                Debug.Log("Performance Mode Enabled");
                 performance_mode = true;
                 mesh_renderer_terrain.material = terrain_material_performance;
+            }
+        }
+
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.Period))
+        {
+            if (default_lighting_mode)
+            {
+                Debug.Log("Default Lighting Mode Disabled");
+                default_lighting_mode = false;
+
+                lighting.SetActive(true);
+                default_light.SetActive(false);
+            }
+            else
+            {
+                Debug.Log("Default Lighting Mode Enabled");
+                
+                default_lighting_mode = true;
+
+                lighting.SetActive(false);
+                default_light.SetActive(true);
             }
         }
     }
