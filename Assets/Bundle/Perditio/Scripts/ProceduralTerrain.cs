@@ -552,8 +552,11 @@ public class ProceduralTerrain : MonoBehaviour
                     good_placement = true;
                     for (int k = 0; k < i; k++)
                     {
-                        if (Vector3.Distance(battlespace.DistributedObjectives[k], battlespace.DistributedObjectives[i]) <= 500f)
-                        {
+                        float minimum_caps_distance = 700f;
+                        if (
+                            Vector3.Distance(battlespace.DistributedObjectives[k], battlespace.DistributedObjectives[i]) <= minimum_caps_distance ||
+                            Vector3.Distance(battlespace.DistributedObjectives[k], -battlespace.DistributedObjectives[i]) <= minimum_caps_distance
+                        ) {
                             good_placement = false;
                             break;
                         }
@@ -659,7 +662,7 @@ public class ProceduralTerrain : MonoBehaviour
     }
 
     bool performance_mode = false;
-    bool default_lighting_mode = true;
+    bool default_lighting_mode = false;
 
     void Update()
     {
