@@ -4,7 +4,7 @@
   <ModDescription>Fully procedural map generation. Supports ai and multiplayer.
   ctrl+shift+"," to toggle shader performance mode 
   ctrl+shift+"." to toggle default lighting mode.</ModDescription>
-  <ModVer>1.1</ModVer>
+  <ModVer>1.2</ModVer>
   <Assemblies>
     <string>Perditio.dll</string>
   </Assemblies>

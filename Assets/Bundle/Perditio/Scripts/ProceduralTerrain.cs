@@ -577,7 +577,7 @@ public class ProceduralTerrain : MonoBehaviour
         perlin_offset = new Vector3(NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f));
         perlin_rotation = NextQuaternion();
 
-        density_cut_off = NextFloat(0.48f, 0.49f);
+        density_cut_off = NextFloat(0.48f, 0.50f);
         Debug.Log(string.Format("Perditio: density_cut_off: {0}", density_cut_off));
 
         for (int x = 0; x < grid_resolution; x++)
