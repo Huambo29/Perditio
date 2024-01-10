@@ -376,43 +376,11 @@ public class ProceduralTerrain : MonoBehaviour
         new_mesh.vertices = vertices.ToArray();
         new_mesh.triangles = triangles.ToArray();
 
-        //new_mesh = JoinVertices(new_mesh); // slow af
-
         new_mesh.RecalculateBounds();
         new_mesh.RecalculateNormals();
         new_mesh.RecalculateTangents();
 
         return new_mesh;
-    }
-
-    Mesh JoinVertices(Mesh mesh)
-    {
-        Dictionary<int, int> duplicates_table = new Dictionary<int, int>();
-
-        for (int i = 0; i < mesh.vertices.Length; i++)
-        {
-            if (!duplicates_table.ContainsKey(i))
-            {
-                for (int k = i; k < mesh.vertices.Length; k++)
-                {
-                    if ((mesh.vertices[i] - mesh.vertices[k]).sqrMagnitude <= 0.0000001f)
-                    {
-                        duplicates_table[k] = i;
-                    }
-                }
-            }
-        }
-
-        int new_value;
-        for (int i = 0; i < mesh.triangles.Length; i++)
-        {
-            if (duplicates_table.TryGetValue(mesh.triangles[i], out new_value))
-            {
-                mesh.triangles[i] = new_value;
-            }
-        }
-
-        return mesh;
     }
 
     void LogEntireFucker(Transform child_transform, int depth = 0)
