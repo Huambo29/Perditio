@@ -406,7 +406,7 @@ namespace Perditio
 
         void SetupScenario()
         {
-            switch (LobbySettings.lobby_config.scenario)
+            switch (LobbySettings.instance.scenario)
             {
                 case "Annihilation":
                     break;
@@ -488,7 +488,7 @@ namespace Perditio
             perlin_offset = new Vector3(NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f));
             perlin_rotation = NextQuaternion();
 
-            switch (LobbySettings.lobby_config.terrain_density)
+            switch (LobbySettings.instance.terrain_density)
             { 
                 case TerrainDensity.High:
                     density_cut_off = NextFloat(0.48f, 0.48f);
@@ -535,8 +535,14 @@ namespace Perditio
             mesh_renderer_tacview.material = tacview_material;
             battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
 
+            if (LobbySettings.instance == null)
+            {
+                LobbySettings.instance = new LobbySettings("Control", TerrainDensity.Random);
+            }
+
             //lobby_settings = LobbySettings.LoadLobbySettings();
-            Utils.LogQuantumConsole($"Perditio scenario: {LobbySettings.lobby_config.scenario} density: {LobbySettings.lobby_config.terrain_density}");
+            
+            Utils.LogQuantumConsole($"Perditio scenario: {LobbySettings.instance.scenario} density: {LobbySettings.instance.terrain_density}");
 
             //LogEntireScene();
 

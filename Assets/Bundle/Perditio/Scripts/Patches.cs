@@ -84,7 +84,7 @@ namespace Perditio
                     Debug.Log($"syncedOption: {synced_option.Name} | {synced_option.Value}");
                     if (synced_option.Name == ModEntryPoint.DENSITY_FIELD_NAME)
                     {
-                        LobbySettings.lobby_config = new LobbySettings.Config(__result.Scenario.ScenarioName, (TerrainDensity)synced_option.Value);
+                        LobbySettings.instance = new LobbySettings(__result.Scenario.ScenarioName, (TerrainDensity)synced_option.Value);
                         break;
                     }
                 } 
