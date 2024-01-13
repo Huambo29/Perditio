@@ -22,24 +22,6 @@ namespace Perditio
 {
     public class Patches
     {
-        [HarmonyPatch(typeof(BundleManager), "ProcessAssetBundle")]
-        public class PatchBundleManagerProcessAssetBundle
-        {
-            static void Postfix()
-            {
-                ModEntryPoint.PatchAllScenarios();
-            }
-        }
-
-        [HarmonyPatch(typeof(ModRecord), "LoadMod")]
-        public class PatchModRecordLoadMod
-        {
-            static void Postfix()
-            {
-                ModEntryPoint.PatchAllScenarios();
-            }
-        }
-
         static bool is_interface_dirty = false;
 
         [HarmonyPatch(typeof(SkirmishGameSettings), "ResolveSelectedMap")]
@@ -86,71 +68,26 @@ namespace Perditio
             {
                 Debug.Log("Perditio GetLaunchOptions");
 
-                foreach (SyncedOption synced_option in Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>())
-                {
-                    if (synced_option.Name == ModEntryPoint.DENSITY_FIELD_NAME)
-                    {
-                        Debug.Log("Perditio Duplicate");
-                        return;
-                    }
-                }
-
                 List<ScenarioOptionNode> option_nodes = Utils.GetPrivateValue<List<ScenarioOptionNode>>(__result.Scenario, "_optionNodes");
 
-                IntegerOptionNode some_node = __result.Scenario.InsertNode<IntegerOptionNode>(0);
-                Guid guid = new Guid();
-                ShortGuid shortGuid = new ShortGuid(guid);
-                Utils.SetPrivateValue(some_node, "_name", "perditio_transfer_density");
-                Utils.SetPrivateValue(some_node, "_options", Enumerable.Range(1, 4).ToArray<int>());
-                Utils.SetPrivateValue(some_node, "_initialOptionIndex", 0);
-                Utils.SetPrivateValue(some_node, "_key", shortGuid.ToString(), typeof(KeyedNode));
+                foreach (ScenarioOptionNode option_node in option_nodes)
+                {
+                    if (option_node.OptionName == ModEntryPoint.DENSITY_FIELD_NAME_TRANSFER)
+                    {
+                        Debug.Log("Perditio Transfer Duplicate");
+                        return;
+                    }
+                }  
 
                 foreach (SyncedOption synced_option in Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>())
                 {
                     Debug.Log($"syncedOption: {synced_option.Name} | {synced_option.Value}");
                     if (synced_option.Name == ModEntryPoint.DENSITY_FIELD_NAME)
                     {
-                        some_node.SelectedValue = synced_option.Value;
-                        option_nodes.Add(some_node);
+                        LobbySettings.lobby_config = new LobbySettings.Config(__result.Scenario.ScenarioName, (TerrainDensity)synced_option.Value);
+                        break;
                     }
                 } 
-
-                
-
-                foreach (ScenarioOptionNode option_node in option_nodes)
-                {
-                    Debug.Log($"option_node: {option_node.OptionName}");
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(SkirmishGameManager), "StateTransferringFleets")]
-        public class PatchSkirmishGameManagerStateTransferringFleets
-        {
-            static void Prefix(ref SkirmishGameManager __instance)
-            {
-                Debug.Log("Perditio StateTransferringFleets");
-                Battlespace battlespace = __instance.LoadedMap;
-                ProceduralTerrain procedural_terrain = battlespace.GetComponentInChildren<ProceduralTerrain>();
-
-                ScenarioGraph scenario_graph = Utils.GetPrivateValue<ScenarioGraph>(__instance, "_clientScenario");
-                List<ScenarioOptionNode> option_nodes = Utils.GetPrivateValue<List<ScenarioOptionNode>>(scenario_graph, "_optionNodes");
-
-                foreach (ScenarioOptionNode option_node in option_nodes)
-                {
-                    Debug.Log($"option_node: {option_node.OptionName}}");
-                }
-
-                IntegerOptionNode option_node_density = Enumerable.FirstOrDefault<Node>(scenario_graph.nodes, (x => x is IntegerOptionNode && ((IntegerOptionNode)x).OptionName == ModEntryPoint.DENSITY_FIELD_NAME)) as IntegerOptionNode;
-
-                if (option_node_density == null)
-                {
-                    Debug.Log($"Perditio option_node_density null");
-                    return;
-                }
-
-                int option_index_value = Utils.GetPrivateValue<int>(option_node_density, "_latchedOptionIndex");
-                Debug.Log($"Perditio option_index_value {option_index_value}");
             }
         }
     }

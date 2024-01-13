@@ -69,6 +69,7 @@ namespace Perditio
         List<Vector3> scenario_interest_points = new List<Vector3>();
         Game.Map.Battlespace battlespace;
         GameObject default_light;
+        LobbySettings lobby_settings;
 
 
         System.Random rand;
@@ -223,9 +224,9 @@ namespace Perditio
 
         Mesh GenerateMesh()
         {
-            Debug.Log("Perditio: flag 7");
+            Debug.Log("Perditio flag 7");
             List<Vector3> vertices = new List<Vector3>();
-            Debug.Log("Perditio: flag 8");
+            Debug.Log("Perditio flag 8");
             List<int> triangles = new List<int>();
 
             middle_points = new int[grid_resolution, grid_resolution, grid_resolution];
@@ -240,10 +241,10 @@ namespace Perditio
                 }
             }
 
-            Debug.Log("Perditio: flag 9");
+            Debug.Log("Perditio flag 9");
             float half_grid_size = (mesh_size * 0.5f) / grid_resolution;
 
-            Debug.Log("Perditio: flag 10");
+            Debug.Log("Perditio flag 10");
             Vector3[] offsets_x = new Vector3[4]
             {
             new Vector3(half_grid_size, half_grid_size, -half_grid_size),
@@ -268,8 +269,8 @@ namespace Perditio
             new Vector3(half_grid_size, -half_grid_size, half_grid_size)
             };
 
-            Debug.Log("Perditio: flag 11");
-            Debug.Log("Perditio: flag 12 " + density_field[0, 0, 0]);
+            Debug.Log("Perditio flag 11");
+            Debug.Log("Perditio flag 12 " + density_field[0, 0, 0]);
             for (int x = 0; x < grid_resolution; x++)
             {
                 for (int y = 0; y < grid_resolution; y++)
@@ -375,7 +376,7 @@ namespace Perditio
                 }
             }
 
-            Debug.Log("Perditio: flag 13");
+            Debug.Log("Perditio flag 13");
             Mesh new_mesh = new Mesh();
             new_mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             new_mesh.vertices = vertices.ToArray();
@@ -403,25 +404,9 @@ namespace Perditio
             return (NextQuaternion() * Vector3.up);
         }
 
-        String GetScenario()
-        {
-            try
-            {
-                Game.SkirmishGameManager game_manager = GameObject.Find("_SKIRMISH GAME MANAGER_").GetComponent<Game.SkirmishGameManager>();
-                String scenario_name = Utils.GetPrivateValue<Missions.ScenarioGraph>(game_manager, "_clientScenario").ScenarioName;
-                Debug.Log(string.Format("Perditio: scenario: {0}", scenario_name));
-                return scenario_name;
-            }
-            catch (Exception e)
-            {
-                Debug.Log(string.Format("Perditio: Finding SKIRMISH GAME MANAGER Failed With: {0}", e.ToString()));
-                return "Control";
-            }
-        }
-
         void SetupScenario()
         {
-            switch (GetScenario())
+            switch (LobbySettings.lobby_config.scenario)
             {
                 case "Annihilation":
                     break;
@@ -445,7 +430,7 @@ namespace Perditio
                     scenario_interest_points.Add(team_b_home.position);
                     break;
                 default:
-                    Debug.Log("Perditio: Unknown Scenario");
+                    Debug.Log("Perditio Unknown Scenario");
                     for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
                     {
                         scenario_interest_points.Add(battlespace.DistributedObjectives[i]);
@@ -503,7 +488,23 @@ namespace Perditio
             perlin_offset = new Vector3(NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f), NextFloat(-100000f, 100000f));
             perlin_rotation = NextQuaternion();
 
-            density_cut_off = NextFloat(0.48f, 0.50f);
+            switch (LobbySettings.lobby_config.terrain_density)
+            { 
+                case TerrainDensity.High:
+                    density_cut_off = NextFloat(0.48f, 0.48f);
+                    break;
+                case TerrainDensity.Medium:
+                    density_cut_off = NextFloat(0.49f, 0.49f);
+                    break;
+                case TerrainDensity.Low:
+                    density_cut_off = NextFloat(0.50f, 0.50f);
+                    break;
+                case TerrainDensity.Random:
+                default:
+                    density_cut_off = NextFloat(0.48f, 0.50f);
+                    break;
+            }
+            
             Debug.Log(string.Format("Perditio: density_cut_off: {0}", density_cut_off));
 
             for (int x = 0; x < grid_resolution; x++)
@@ -534,6 +535,9 @@ namespace Perditio
             mesh_renderer_tacview.material = tacview_material;
             battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
 
+            //lobby_settings = LobbySettings.LoadLobbySettings();
+            Utils.LogQuantumConsole($"Perditio scenario: {LobbySettings.lobby_config.scenario} density: {LobbySettings.lobby_config.terrain_density}");
+
             //LogEntireScene();
 
             int random_seed;
@@ -544,11 +548,11 @@ namespace Perditio
             catch (Exception e)
             {
                 random_seed = (int)DateTimeOffset.Now.ToUnixTimeSeconds();
-                Debug.Log(string.Format("Perditio: Getting lobby id failed with: {0}", e.ToString()));
+                Debug.Log(string.Format("Perditio Getting lobby id failed with: {0}", e.ToString()));
             }
 
 
-            Debug.Log(string.Format("Perditio: Map Seed: {0}", random_seed));
+            Debug.Log(string.Format("Perditio Map Seed: {0}", random_seed));
             Utils.LogQuantumConsole(string.Format("Map Seed: {0}", random_seed));
 
             rand = new System.Random(random_seed);
@@ -572,7 +576,7 @@ namespace Perditio
             }
             catch (Exception e)
             {
-                Debug.Log(string.Format("Perditio: Finding Space Partitioner Failed With: {0}", e.ToString()));
+                Debug.Log(string.Format("Perditio Finding Space Partitioner Failed With: {0}", e.ToString()));
             }
 
             try
@@ -583,7 +587,7 @@ namespace Perditio
             }
             catch (Exception e)
             {
-                Debug.Log(string.Format("Perditio: Finding Default Skirmish Map Lighting Failed With: {0}", e.ToString()));
+                Debug.Log(string.Format("Perditio Finding Default Skirmish Map Lighting Failed With: {0}", e.ToString()));
             }
         }
 
@@ -596,13 +600,13 @@ namespace Perditio
             {
                 if (performance_mode)
                 {
-                    Debug.Log("Perditio: Performance Mode Disabled");
+                    Debug.Log("Perditio Performance Mode Disabled");
                     mesh_renderer_terrain.material = terrain_material;
                     performance_mode = false;
                 }
                 else
                 {
-                    Debug.Log("Perditio: Performance Mode Enabled");
+                    Debug.Log("Perditio Performance Mode Enabled");
                     performance_mode = true;
                     mesh_renderer_terrain.material = terrain_material_performance;
                 }
@@ -612,7 +616,7 @@ namespace Perditio
             {
                 if (default_lighting_mode)
                 {
-                    Debug.Log("Perditio: Default Lighting Mode Disabled");
+                    Debug.Log("Perditio Default Lighting Mode Disabled");
                     default_lighting_mode = false;
 
                     lighting.SetActive(true);
@@ -620,7 +624,7 @@ namespace Perditio
                 }
                 else
                 {
-                    Debug.Log("Perditio: Default Lighting Mode Enabled");
+                    Debug.Log("Perditio Default Lighting Mode Enabled");
 
                     default_lighting_mode = true;
 
