@@ -535,14 +535,28 @@ namespace Perditio
             mesh_renderer_tacview.material = tacview_material;
             battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
 
-            if (LobbySettings.instance == null)
-            {
-                LobbySettings.instance = new LobbySettings("Control", TerrainDensity.Random);
-            }
+            Utils.LogQuantumConsole($"Perditio scenario: {LobbySettings.instance.scenario}");
+            Utils.LogQuantumConsole($"Perditio density: {LobbySettings.instance.terrain_density}");
+            Utils.LogQuantumConsole($"Perditio fraying: {LobbySettings.instance.terrain_fraying}");
 
-            //lobby_settings = LobbySettings.LoadLobbySettings();
-            
-            Utils.LogQuantumConsole($"Perditio scenario: {LobbySettings.instance.scenario} density: {LobbySettings.instance.terrain_density}");
+            switch (LobbySettings.instance.terrain_fraying)
+            {
+                case TerrainFraying.VeryLow:
+                    octaves_persistence = 0.6f;
+                    break;
+                case TerrainFraying.Low:
+                    octaves_persistence = 0.7f;
+                    break;
+                case TerrainFraying.Default:
+                    octaves_persistence = 0.8f;
+                    break;
+                case TerrainFraying.High:
+                    octaves_persistence = 0.9f;
+                    break;
+                case TerrainFraying.VeryHigh:
+                    octaves_persistence = 1.0f;
+                    break;
+            }
 
             //LogEntireScene();
 

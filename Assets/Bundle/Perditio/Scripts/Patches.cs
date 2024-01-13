@@ -38,6 +38,7 @@ namespace Perditio
                         is_interface_dirty = true;
 
                         __instance.AddStringListOption(ModEntryPoint.DENSITY_FIELD_NAME, ModEntryPoint.DENSITY_FIELD_OPTIONS, 0);
+                        __instance.AddStringListOption(ModEntryPoint.TORNESS_FIELD_NAME, ModEntryPoint.TORNESS_FIELD_OPTIONS, 2);
                     }
                     else if (!__instance.SelectedMap.MapName.Contains("Perditio") && is_interface_dirty)
                     {
@@ -47,7 +48,7 @@ namespace Perditio
                         foreach (SyncedOption synced_option in Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>())
                         {
                             Debug.Log($"syncedOption: {synced_option.Name}");
-                            if (synced_option.Name == ModEntryPoint.DENSITY_FIELD_NAME)
+                            if (synced_option.Name == ModEntryPoint.DENSITY_FIELD_NAME || synced_option.Name == ModEntryPoint.TORNESS_FIELD_NAME)
                             {
                                 Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Remove(synced_option);
                             }
@@ -68,26 +69,28 @@ namespace Perditio
             {
                 Debug.Log("Perditio GetLaunchOptions");
 
-                List<ScenarioOptionNode> option_nodes = Utils.GetPrivateValue<List<ScenarioOptionNode>>(__result.Scenario, "_optionNodes");
-
-                foreach (ScenarioOptionNode option_node in option_nodes)
-                {
-                    if (option_node.OptionName == ModEntryPoint.DENSITY_FIELD_NAME_TRANSFER)
-                    {
-                        Debug.Log("Perditio Transfer Duplicate");
-                        return;
-                    }
-                }  
+                TerrainDensity density = TerrainDensity.Random;
+                TerrainFraying fraying = TerrainFraying.Default;
 
                 foreach (SyncedOption synced_option in Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>())
                 {
                     Debug.Log($"syncedOption: {synced_option.Name} | {synced_option.Value}");
                     if (synced_option.Name == ModEntryPoint.DENSITY_FIELD_NAME)
                     {
-                        LobbySettings.instance = new LobbySettings(__result.Scenario.ScenarioName, (TerrainDensity)synced_option.Value);
-                        break;
+                        density = (TerrainDensity)synced_option.Value;
                     }
-                } 
+
+                    if (synced_option.Name == ModEntryPoint.TORNESS_FIELD_NAME)
+                    {
+                        fraying = (TerrainFraying)synced_option.Value;
+                    }
+                }
+
+                LobbySettings.instance = new LobbySettings(
+                    __result.Scenario.ScenarioName,
+                    density,
+                    fraying
+                );
             }
         }
     }
