@@ -61,15 +61,17 @@ MonoBehaviour:
   lighting: {fileID: 2501245912024585361}
   grid_resolution: 128
   mesh_size: 1800
-  drop_off_start: 700
-  drop_off_end: 1100
+  drop_off_start: 600
+  drop_off_end: 1000
   octaves: 10
   perlin_scale: 0.3125
   octaves_persistence: 0.8
   octaves_lacunarity: 1.25
-  density_cut_off: 0
-  perlin_offset: {x: 0, y: 0, z: 0}
-  perlin_rotation: {x: 0, y: 0, z: 0, w: 0}
+  compute_shader: {fileID: 7200000, guid: c1c1f755deb59e94387a36364e9c543c, type: 3}
+  skybox_cubemap: {fileID: 8900000, guid: cde925f9a9fce08428ce965ce5f907cb, type: 2}
+  skybox_resolution: 2048
+  skybox_fblrud: []
+  new_textures: []
 --- !u!114 &367870303147655905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -599,14 +601,14 @@ MonoBehaviour:
   _flavorDescription: 
   _mapImage: {fileID: 2800000, guid: 37cf0df34473ce54a80f2beb4ad5d48b, type: 3}
   _radius: 1000
-  _spawnRadius: 950
+  _spawnRadius: 850
   _maxPlayers: 8
   _allowSpawnSelection: 1
   _teamASpawns: {fileID: 4858359421386674075}
   _teamBSpawns: {fileID: 4858359422169055148}
   _pathfinding: {fileID: 11400000, guid: fb6b4e53b8aff744ba036f3d093b8c6a, type: 2}
   _lighting: {fileID: 0}
-  _skybox: {fileID: 0}
+  _skybox: {fileID: 11400000, guid: f8d82c59341c72c44bc48271a7a865e5, type: 2}
   _centralObjectivePosition: {fileID: 4858359421754205982}
   _teamAHomeObjective: {fileID: 7062951585383920358}
   _teamBHomeObjective: {fileID: 9178715867786904066}
@@ -735,7 +737,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4858359421386674085}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -900}
+  m_LocalPosition: {x: 0, y: 0, z: -850}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4858359422427708104}
@@ -956,7 +958,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4858359422169055150}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 900}
+  m_LocalPosition: {x: 0, y: 0, z: 850}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4858359420941175450}

@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 2892781463
+CRC: 3236941704
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 0010321b219880434c3253c6507ce18e
+    Hash: f9a082a12402bfa58681e50c581edb8a
   TypeTreeHash:
     serializedVersion: 2
-    Hash: b8ad3cb6fd563fdc64e34f85db6f53a3
+    Hash: 67fbd288843cd00e3f76c4b4fb33cb63
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -29,6 +29,10 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 64
   Script: {instanceID: 0}
+- Class: 72
+  Script: {instanceID: 0}
+- Class: 89
+  Script: {instanceID: 0}
 - Class: 108
   Script: {instanceID: 0}
 - Class: 114
@@ -37,6 +41,8 @@ ClassTypes:
   Script: {fileID: 1411395594, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
 - Class: 114
   Script: {fileID: -1463400506, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
+- Class: 114
+  Script: {fileID: 35918063, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
 - Class: 114
   Script: {fileID: -217899150, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
 - Class: 114
@@ -51,11 +57,14 @@ SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Bundle/Perditio/manifest.xml
 - Assets/Bundle/Perditio/Materials/AsteroidMaterial.mat
+- Assets/Bundle/Perditio/Materials/Skybox/SkyboxGenerator.compute
 - Assets/Bundle/Perditio/PerditioOctree.asset
 - Assets/Bundle/Perditio/Materials/TacviewElevationFix.mat
+- Assets/Bundle/Perditio/Materials/Skybox/SomeCubemap.cubemap
 - Assets/Bundle/Perditio/Materials/AsteroidShader.shadergraph
 - Assets/Bundle/Perditio/Materials/BasicTerrain.mat
 - Assets/Bundle/Perditio/Materials/TacviewFix.mat
 - Assets/Bundle/Perditio/Perditio Eye.prefab
+- Assets/Bundle/Perditio/Materials/Skybox/Skybox.asset
 - Assets/Bundle/Perditio/Perditio.prefab
 Dependencies: []

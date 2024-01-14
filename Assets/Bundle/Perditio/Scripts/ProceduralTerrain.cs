@@ -39,7 +39,7 @@ namespace Perditio
         [SerializeField]
         GameObject lighting;
 
-        [Header("Procedural Settings")]
+        [Header("Terrain Settings")]
         [SerializeField]
         int grid_resolution = 128;
         [SerializeField]
@@ -57,15 +57,28 @@ namespace Perditio
         [SerializeField]
         float octaves_lacunarity = 1.25f;
 
-        [Header("Read only")]
+        
+
+        [Header("Skybox Settings")]
         [SerializeField]
+        ComputeShader compute_shader;
+        [SerializeField]
+        Cubemap skybox_cubemap;
+        [SerializeField]
+        int skybox_resolution = 2048;
+        [SerializeField]
+        RenderTexture[] skybox_fblrud;
+        [SerializeField]
+        Texture2D[] new_textures;
+
+        
+
         float density_cut_off;
-        [SerializeField]
         Vector3 perlin_offset;
-        [SerializeField]
         Quaternion perlin_rotation;
 
         float[,,] density_field;
+        List<Quaternion> octaves_rotations;
         List<Vector3> scenario_interest_points = new List<Vector3>();
         Game.Map.Battlespace battlespace;
         GameObject default_light;
@@ -98,7 +111,7 @@ namespace Perditio
 
             for (int i = 0; i < octaves; i++)
             {
-                result += amplitude * SamplePerlinNoise(pos * frequency);
+                result += amplitude * SamplePerlinNoise(octaves_rotations[i] * (pos * frequency));
                 amplitude *= octaves_persistence;
                 frequency *= octaves_lacunarity;
             }
@@ -404,6 +417,83 @@ namespace Perditio
             return (NextQuaternion() * Vector3.up);
         }
 
+        void GenerateSkybox()
+        {
+            skybox_fblrud = new RenderTexture[6];
+
+            for (int i = 0; i < 6; i++)
+            {
+                skybox_fblrud[i] = new RenderTexture(skybox_resolution, skybox_resolution, 24, RenderTextureFormat.ARGBFloat);
+                skybox_fblrud[i].enableRandomWrite = true;
+                skybox_fblrud[i].Create();
+            }
+
+            compute_shader.SetFloat("InputResolution", (float)skybox_resolution);
+
+            compute_shader.SetFloat("InputSkyboxDistance", NextFloat(0.9f, 1.1f));
+
+            compute_shader.SetFloat("InputIntensityFirst", NextFloat(0.9f, 1.1f));
+            compute_shader.SetFloat("InputIntensitySecond", NextFloat(0.9f, 1.1f));
+            compute_shader.SetFloat("InputIntensityThird", NextFloat(0.9f, 1.1f));
+
+            compute_shader.SetVector("InputOffsetFirst", new Vector3(NextFloat(-10000f, 10000f), NextFloat(-10000f, 10000f), NextFloat(-10000f, 10000f)));
+            compute_shader.SetVector("InputOffsetSecond", new Vector3(NextFloat(-10000f, 10000f), NextFloat(-10000f, 10000f), NextFloat(-10000f, 10000f)));
+            compute_shader.SetVector("InputOffsetThird", new Vector3(NextFloat(-10000f, 10000f), NextFloat(-10000f, 10000f), NextFloat(-10000f, 10000f)));
+
+            compute_shader.SetFloat("InputFalloff", NextFloat(3.0f, 5.0f));
+
+            compute_shader.SetInt("InputColorOctaves", Mathf.FloorToInt(NextFloat(1.0f, 3.5f)));
+
+            compute_shader.SetVector("InputColorFirst", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
+            compute_shader.SetVector("InputColorSecond", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
+            compute_shader.SetVector("InputColorThird", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
+
+            compute_shader.SetTexture(0, "ResultF", skybox_fblrud[0]);
+            compute_shader.SetTexture(0, "ResultB", skybox_fblrud[1]);
+            compute_shader.SetTexture(0, "ResultL", skybox_fblrud[2]);
+            compute_shader.SetTexture(0, "ResultR", skybox_fblrud[3]);
+            compute_shader.SetTexture(0, "ResultU", skybox_fblrud[4]);
+            compute_shader.SetTexture(0, "ResultD", skybox_fblrud[5]);
+
+            compute_shader.Dispatch(0, skybox_resolution / 8, skybox_resolution / 8, 1);
+
+            RenderTexture old_render_texture = RenderTexture.active;
+
+            Texture2D new_texture = new Texture2D(skybox_resolution, skybox_resolution, TextureFormat.RGBAFloat, false);
+
+            RenderTexture.active = skybox_fblrud[0];
+            new_texture.ReadPixels(new Rect(0, 0, skybox_resolution, skybox_resolution), 0, 0);
+            new_texture.Apply();
+            skybox_cubemap.SetPixels(new_texture.GetPixels(), CubemapFace.PositiveZ);
+
+            RenderTexture.active = skybox_fblrud[1];
+            new_texture.ReadPixels(new Rect(0, 0, skybox_resolution, skybox_resolution), 0, 0);
+            new_texture.Apply();
+            skybox_cubemap.SetPixels(new_texture.GetPixels(), CubemapFace.NegativeZ);
+
+            RenderTexture.active = skybox_fblrud[2];
+            new_texture.ReadPixels(new Rect(0, 0, skybox_resolution, skybox_resolution), 0, 0);
+            new_texture.Apply();
+            skybox_cubemap.SetPixels(new_texture.GetPixels(), CubemapFace.PositiveX);
+
+            RenderTexture.active = skybox_fblrud[3];
+            new_texture.ReadPixels(new Rect(0, 0, skybox_resolution, skybox_resolution), 0, 0);
+            new_texture.Apply();
+            skybox_cubemap.SetPixels(new_texture.GetPixels(), CubemapFace.NegativeX);
+
+            RenderTexture.active = skybox_fblrud[4];
+            new_texture.ReadPixels(new Rect(0, 0, skybox_resolution, skybox_resolution), 0, 0);
+            new_texture.Apply();
+            skybox_cubemap.SetPixels(new_texture.GetPixels(), CubemapFace.PositiveY);
+
+            RenderTexture.active = skybox_fblrud[5];
+            new_texture.ReadPixels(new Rect(0, 0, skybox_resolution, skybox_resolution), 0, 0);
+            new_texture.Apply();
+            skybox_cubemap.SetPixels(new_texture.GetPixels(), CubemapFace.NegativeY);
+
+            skybox_cubemap.Apply();
+        }
+
         void SetupScenario()
         {
             switch (LobbySettings.instance.scenario)
@@ -504,6 +594,12 @@ namespace Perditio
                     density_cut_off = NextFloat(0.48f, 0.50f);
                     break;
             }
+
+            octaves_rotations = new List<Quaternion>();
+            for (int i = 0; i < octaves; i++)
+            {
+                octaves_rotations.Add(NextQuaternion());
+            }
             
             Debug.Log(string.Format("Perditio: density_cut_off: {0}", density_cut_off));
 
@@ -558,7 +654,7 @@ namespace Perditio
                     break;
             }
 
-            //LogEntireScene();
+            //Utils.LogEntireScene(gameObject);
 
             int random_seed;
             try
@@ -576,6 +672,8 @@ namespace Perditio
             Utils.LogQuantumConsole(string.Format("Map Seed: {0}", random_seed));
 
             rand = new System.Random(random_seed);
+
+            GenerateSkybox();
 
             RandomizeScenarioPoints();
             SetupScenario();
