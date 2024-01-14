@@ -61,8 +61,8 @@ MonoBehaviour:
   lighting: {fileID: 2487424587866311708}
   grid_resolution: 128
   mesh_size: 2700
-  drop_off_start: 1000
-  drop_off_end: 1600
+  drop_off_start: 1050
+  drop_off_end: 1650
   octaves: 10
   perlin_scale: 0.3125
   octaves_persistence: 0.8
