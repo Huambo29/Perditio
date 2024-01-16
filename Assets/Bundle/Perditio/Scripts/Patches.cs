@@ -30,34 +30,38 @@ namespace Perditio
             static void Postfix(ref SkirmishGameSettings __instance)
             {
                 Debug.Log("Perditio ResolveSelectedMap Postfix");
-                if (__instance.SelectedMap)
+
+                if (Utils.GetPrivateValue<SkirmishLobbyManager>(__instance, "_lobbyManager").IsDedicatedServer)
                 {
-                    if (__instance.SelectedMap.MapName.Contains("Perditio") && !is_interface_dirty)
-                    {
-                        Debug.Log("Perditio interface dirty");
-                        is_interface_dirty = true;
+                    Debug.Log("Perditio No settings exposing for dedicated servers");
+                    return;
+                }
 
-                        __instance.AddStringListOption(ModEntryPoint.DENSITY_FIELD_NAME, ModEntryPoint.DENSITY_FIELD_OPTIONS, 0);
-                        __instance.AddStringListOption(ModEntryPoint.TORNESS_FIELD_NAME, ModEntryPoint.TORNESS_FIELD_OPTIONS, 2);
-                    }
-                    else if (!__instance.SelectedMap.MapName.Contains("Perditio") && is_interface_dirty)
-                    {
-                        Debug.Log("Perditio interface clean");
-                        is_interface_dirty = false;
+                if ((__instance.SelectedMap && __instance.SelectedMap.MapName.Contains("Perditio")) && !is_interface_dirty)
+                {
+                    Debug.Log("Perditio interface dirty");
+                    is_interface_dirty = true;
 
-                        foreach (SyncedOption synced_option in Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>())
+                    __instance.AddStringListOption(ModEntryPoint.DENSITY_FIELD_NAME, ModEntryPoint.DENSITY_FIELD_OPTIONS, 0);
+                    __instance.AddStringListOption(ModEntryPoint.ROUGHNESS_FIELD_NAME, ModEntryPoint.ROUGHNESS_FIELD_OPTIONS, 2);
+                }
+                else if ((__instance.SelectedMap && !__instance.SelectedMap.MapName.Contains("Perditio")) && is_interface_dirty)
+                {
+                    Debug.Log("Perditio interface clean");
+                    is_interface_dirty = false;
+
+                    foreach (SyncedOption synced_option in Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>())
+                    {
+                        Debug.Log($"syncedOption: {synced_option.Name}");
+                        if (synced_option.Name == ModEntryPoint.DENSITY_FIELD_NAME || synced_option.Name == ModEntryPoint.ROUGHNESS_FIELD_NAME)
                         {
-                            Debug.Log($"syncedOption: {synced_option.Name}");
-                            if (synced_option.Name == ModEntryPoint.DENSITY_FIELD_NAME || synced_option.Name == ModEntryPoint.TORNESS_FIELD_NAME)
-                            {
-                                Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Remove(synced_option);
-                            }
+                            Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Remove(synced_option);
                         }
                     }
-                    else
-                    {
-                        Debug.Log("Perditio interface already set");
-                    }
+                }
+                else
+                {
+                    Debug.Log("Perditio interface already set");
                 }
             }
         }
@@ -69,8 +73,14 @@ namespace Perditio
             {
                 Debug.Log("Perditio GetLaunchOptions");
 
+                if (Utils.GetPrivateValue<SkirmishLobbyManager>(__instance, "_lobbyManager").IsDedicatedServer)
+                {
+                    Debug.Log("Perditio No settings exposing for dedicated servers");
+                    return;
+                }
+
                 TerrainDensity density = TerrainDensity.Random;
-                TerrainFraying fraying = TerrainFraying.Default;
+                TerrainRoughness roughness = TerrainRoughness.Default;
 
                 foreach (SyncedOption synced_option in Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>())
                 {
@@ -80,16 +90,16 @@ namespace Perditio
                         density = (TerrainDensity)synced_option.Value;
                     }
 
-                    if (synced_option.Name == ModEntryPoint.TORNESS_FIELD_NAME)
+                    if (synced_option.Name == ModEntryPoint.ROUGHNESS_FIELD_NAME)
                     {
-                        fraying = (TerrainFraying)synced_option.Value;
+                        roughness = (TerrainRoughness)synced_option.Value;
                     }
                 }
 
                 LobbySettings.instance = new LobbySettings(
                     __result.Scenario.ScenarioName,
                     density,
-                    fraying
+                    roughness
                 );
             }
         }

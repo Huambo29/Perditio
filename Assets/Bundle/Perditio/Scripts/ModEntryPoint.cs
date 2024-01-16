@@ -7,12 +7,14 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
+using Modding;
+using Game;
+using Game.Map;
 using Bundles;
+using Networking;
 using Missions;
 using Missions.Nodes;
 using Missions.Nodes.Scenario;
-
-using Modding;
 using Utility;
 
 using XNode;
@@ -24,8 +26,8 @@ namespace Perditio
         public const string DENSITY_FIELD_NAME = "Perditio Map Density";
         public static readonly string[] DENSITY_FIELD_OPTIONS = new string[4] { "Random", "High", "Medium", "Low" };
 
-        public const string TORNESS_FIELD_NAME = "Perditio Map Fraying";
-        public static readonly string[] TORNESS_FIELD_OPTIONS = new string[5] { "Very Low", "Low", "Default", "High", "Very High" };
+        public const string ROUGHNESS_FIELD_NAME = "Perditio Map Roughness";
+        public static readonly string[] ROUGHNESS_FIELD_OPTIONS = new string[5] { "Very Low", "Low", "Default", "High", "Very High" };
 
         public void PreLoad()
         {

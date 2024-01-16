@@ -633,23 +633,23 @@ namespace Perditio
 
             Utils.LogQuantumConsole($"Perditio scenario: {LobbySettings.instance.scenario}");
             Utils.LogQuantumConsole($"Perditio density: {LobbySettings.instance.terrain_density}");
-            Utils.LogQuantumConsole($"Perditio fraying: {LobbySettings.instance.terrain_fraying}");
+            Utils.LogQuantumConsole($"Perditio roughness: {LobbySettings.instance.terrain_roughness}");
 
-            switch (LobbySettings.instance.terrain_fraying)
+            switch (LobbySettings.instance.terrain_roughness)
             {
-                case TerrainFraying.VeryLow:
+                case TerrainRoughness.VeryLow:
                     octaves_persistence = 0.6f;
                     break;
-                case TerrainFraying.Low:
+                case TerrainRoughness.Low:
                     octaves_persistence = 0.7f;
                     break;
-                case TerrainFraying.Default:
+                case TerrainRoughness.Default:
                     octaves_persistence = 0.8f;
                     break;
-                case TerrainFraying.High:
+                case TerrainRoughness.High:
                     octaves_persistence = 0.9f;
                     break;
-                case TerrainFraying.VeryHigh:
+                case TerrainRoughness.VeryHigh:
                     octaves_persistence = 1.0f;
                     break;
             }

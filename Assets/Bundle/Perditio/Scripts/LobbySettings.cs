@@ -19,7 +19,7 @@ namespace Perditio
         Low
     }
 
-    public enum TerrainFraying
+    public enum TerrainRoughness
     {
         VeryLow,
         Low,
@@ -30,16 +30,16 @@ namespace Perditio
 
     public class LobbySettings
     {
-        public LobbySettings(String _scenario, TerrainDensity _terrain_density, TerrainFraying _terrain_fraying)
+        public LobbySettings(String _scenario, TerrainDensity _terrain_density, TerrainRoughness _terrain_roughness)
         {
             scenario = _scenario;
             terrain_density = _terrain_density;
-            terrain_fraying = _terrain_fraying;
+            terrain_roughness = _terrain_roughness;
         }
 
         public String scenario;
         public TerrainDensity terrain_density;
-        public TerrainFraying terrain_fraying;
+        public TerrainRoughness terrain_roughness;
 
         private static LobbySettings _instance;
         public static LobbySettings instance
@@ -48,7 +48,7 @@ namespace Perditio
             {
                 if (_instance == null)
                 {
-                    _instance = new LobbySettings("Control", TerrainDensity.Random, TerrainFraying.Default);
+                    _instance = new LobbySettings("Control", TerrainDensity.Random, TerrainRoughness.Default);
                 }
                 return _instance;
             }
