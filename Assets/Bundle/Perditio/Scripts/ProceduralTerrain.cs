@@ -1,8 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using System;
-using QFSW.QC;
 using UnityEngine;
+using Networking;
+using Game;
+using Steamworks;
 using Mirror;
 
 namespace Perditio
@@ -83,6 +84,8 @@ namespace Perditio
         Game.Map.Battlespace battlespace;
         GameObject default_light;
         LobbySettings lobby_settings;
+
+        bool is_dedicated_server;
 
 
         System.Random rand;
@@ -419,13 +422,16 @@ namespace Perditio
 
         void GenerateSkybox()
         {
-            skybox_fblrud = new RenderTexture[6];
-
-            for (int i = 0; i < 6; i++)
+            if (!is_dedicated_server)
             {
-                skybox_fblrud[i] = new RenderTexture(skybox_resolution, skybox_resolution, 24, RenderTextureFormat.ARGBFloat);
-                skybox_fblrud[i].enableRandomWrite = true;
-                skybox_fblrud[i].Create();
+                skybox_fblrud = new RenderTexture[6];
+
+                for (int i = 0; i < 6; i++)
+                {
+                    skybox_fblrud[i] = new RenderTexture(skybox_resolution, skybox_resolution, 24, RenderTextureFormat.ARGBFloat);
+                    skybox_fblrud[i].enableRandomWrite = true;
+                    skybox_fblrud[i].Create();
+                }
             }
 
             compute_shader.SetFloat("InputResolution", (float)skybox_resolution);
@@ -447,6 +453,11 @@ namespace Perditio
             compute_shader.SetVector("InputColorFirst", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
             compute_shader.SetVector("InputColorSecond", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
             compute_shader.SetVector("InputColorThird", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
+
+            if (is_dedicated_server)
+            {
+                return;
+            }
 
             compute_shader.SetTexture(0, "ResultF", skybox_fblrud[0]);
             compute_shader.SetTexture(0, "ResultB", skybox_fblrud[1]);
@@ -627,13 +638,31 @@ namespace Perditio
         void Start()
         {
             Debug.Log("Perditio Starte");
-            mesh_renderer_terrain.material = terrain_material;
-            mesh_renderer_tacview.material = tacview_material;
+
+            try
+            {
+                SkirmishGameManager game_manager = GameObject.Find("_SKIRMISH GAME MANAGER_").GetComponent<SkirmishGameManager>();
+                is_dedicated_server = game_manager.IsDedicatedServer;
+            }
+            catch (Exception e)
+            {
+                is_dedicated_server = false;
+            }
+                
+
+            if (!is_dedicated_server)
+            {
+                mesh_renderer_terrain.material = terrain_material;
+                mesh_renderer_tacview.material = tacview_material;
+            }  
+
             battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
 
             Utils.LogQuantumConsole($"Perditio scenario: {LobbySettings.instance.scenario}");
             Utils.LogQuantumConsole($"Perditio density: {LobbySettings.instance.terrain_density}");
             Utils.LogQuantumConsole($"Perditio roughness: {LobbySettings.instance.terrain_roughness}");
+            Utils.LogQuantumConsole($"Perditio seed: {LobbySettings.instance.seed}");
+
 
             switch (LobbySettings.instance.terrain_roughness)
             {
@@ -659,14 +688,23 @@ namespace Perditio
             int random_seed;
             try
             {
-                random_seed = (int)(NetworkManager.singleton as Networking.PortableNetworkManager).LobbyInfo.LobbyID.Value;
+                //if ((NetworkManager.singleton as PortableNetworkManager).LobbyInfo == null)
+                //{
+                //    Debug.Log("Perditio LobbyInfo null");
+               // }
+               // Debug.Log("Perditio Magic Flag");
+                // Game.SkirmishGameManager game_manager = GameObject.Find("_SKIRMISH GAME MANAGER_").GetComponent<Game.SkirmishGameManager>();
+                // random_seed = (int)Utils.GetPrivateValue<PortableNetworkManager>(game_manager, "_netManager").LobbyInfo.LobbyID.Value;
+                //Debug.Log($"Perditio: {(NetworkManager.singleton as PortableNetworkManager).LobbyInfo.ToString()}");
+               /// SteamLobbyInfo some_manager = (NetworkManager.singleton as PortableNetworkManager).LobbyInfo;
+                random_seed = 2138;
             }
             catch (Exception e)
             {
-                random_seed = (int)DateTimeOffset.Now.ToUnixTimeSeconds();
+                //random_seed = (int)DateTimeOffset.Now.ToUnixTimeSeconds();
+                random_seed = 2137;
                 Debug.Log(string.Format("Perditio Getting lobby id failed with: {0}", e.ToString()));
             }
-
 
             Debug.Log(string.Format("Perditio Map Seed: {0}", random_seed));
             Utils.LogQuantumConsole(string.Format("Map Seed: {0}", random_seed));
@@ -708,6 +746,7 @@ namespace Perditio
                 Debug.Log(string.Format("Perditio Finding Default Skirmish Map Lighting Failed With: {0}", e.ToString()));
             }
         }
+        /*
 
         bool performance_mode = false;
         bool default_lighting_mode = false;
@@ -751,5 +790,6 @@ namespace Perditio
                 }
             }
         }
+        */
     }
 }

@@ -42,13 +42,14 @@ namespace Perditio
 
         public static void LogQuantumConsole(string message)
         {
+            Debug.Log($"Perditio LogQuantumConsole: {message}");
             try
             {
                 QuantumConsole.Instance.LogToConsole(message);
             }
             catch (Exception e)
-            {
-                Debug.Log(string.Format("Perditio: Quantum Console Failed With: {0}", e.ToString()));
+            { 
+                //Debug.Log($"Perditio Quantum Console Failed With: {e.ToString()}");
             }
         }
 
