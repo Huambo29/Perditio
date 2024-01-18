@@ -683,33 +683,10 @@ namespace Perditio
                     break;
             }
 
-            //Utils.LogEntireScene(gameObject);
+            Debug.Log(string.Format("Perditio Map Seed: {0}", LobbySettings.instance.seed));
+            Utils.LogQuantumConsole(string.Format("Map Seed: {0}", LobbySettings.instance.seed));
 
-            int random_seed;
-            try
-            {
-                //if ((NetworkManager.singleton as PortableNetworkManager).LobbyInfo == null)
-                //{
-                //    Debug.Log("Perditio LobbyInfo null");
-               // }
-               // Debug.Log("Perditio Magic Flag");
-                // Game.SkirmishGameManager game_manager = GameObject.Find("_SKIRMISH GAME MANAGER_").GetComponent<Game.SkirmishGameManager>();
-                // random_seed = (int)Utils.GetPrivateValue<PortableNetworkManager>(game_manager, "_netManager").LobbyInfo.LobbyID.Value;
-                //Debug.Log($"Perditio: {(NetworkManager.singleton as PortableNetworkManager).LobbyInfo.ToString()}");
-               /// SteamLobbyInfo some_manager = (NetworkManager.singleton as PortableNetworkManager).LobbyInfo;
-                random_seed = 2138;
-            }
-            catch (Exception e)
-            {
-                //random_seed = (int)DateTimeOffset.Now.ToUnixTimeSeconds();
-                random_seed = 2137;
-                Debug.Log(string.Format("Perditio Getting lobby id failed with: {0}", e.ToString()));
-            }
-
-            Debug.Log(string.Format("Perditio Map Seed: {0}", random_seed));
-            Utils.LogQuantumConsole(string.Format("Map Seed: {0}", random_seed));
-
-            rand = new System.Random(random_seed);
+            rand = new System.Random(LobbySettings.instance.seed);
 
             GenerateSkybox();
 
@@ -746,8 +723,6 @@ namespace Perditio
                 Debug.Log(string.Format("Perditio Finding Default Skirmish Map Lighting Failed With: {0}", e.ToString()));
             }
         }
-        /*
-
         bool performance_mode = false;
         bool default_lighting_mode = false;
 
@@ -790,6 +765,5 @@ namespace Perditio
                 }
             }
         }
-        */
     }
 }

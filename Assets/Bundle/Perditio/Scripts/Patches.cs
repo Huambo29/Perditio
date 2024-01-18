@@ -16,10 +16,34 @@ namespace Perditio
 
         static SkirmishLobbyManager lobby_manager;
 
+        static void HelpPerditio(IPlayer fromPlayer, string chatArgs)
+        {
+            if (lobby_manager == null)
+            {
+                Debug.Log("Perditio lobby_manager is null");
+                return;
+            }
+
+            ChatService chat_service = Utils.GetPrivateValue<ChatService>(lobby_manager, "_chatService");
+
+            chat_service.SendSystemMessageToIndividual(fromPlayer, "Commands are:");
+            chat_service.SendSystemMessageToIndividual(fromPlayer, "!voteperditio <Option Name (string)> <Option (integer)>.");
+            chat_service.SendSystemMessageToIndividual(fromPlayer, "!changeperditio <Option Name (string)> <Option (integer)>.");
+            chat_service.SendSystemMessageToIndividual(fromPlayer, "You don't have to use full option names");
+
+            chat_service.SendSystemMessageToIndividual(fromPlayer, "Available option values are:");
+            chat_service.SendSystemMessageToIndividual(fromPlayer, $"Density: 0-{ModEntryPoint.DENSITY_FIELD_OPTIONS.Length - 1} ({String.Join(", ", ModEntryPoint.DENSITY_FIELD_OPTIONS)})");
+            chat_service.SendSystemMessageToIndividual(fromPlayer, $"Roughness: 0-{ModEntryPoint.ROUGHNESS_FIELD_OPTIONS.Length - 1} ({String.Join(", ", ModEntryPoint.ROUGHNESS_FIELD_OPTIONS)})");
+            chat_service.SendSystemMessageToIndividual(fromPlayer, $"Seeds: 0-{ModEntryPoint.MAX_SEED - 1}");
+        }
+
         static void SetSyncedOption(string name, int value, SkirmishGameSettings game_settings)
         {
-            List<SyncedOption> synced_options = Utils.GetPrivateValue<SyncListGameSettings>(game_settings, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>();
-            synced_options.FirstOrDefault<SyncedOption>((Func<SyncedOption, bool>)(x => x.Name == name)).SetValue(value);
+            Debug.Log($"Perditio changing option name {name} value {value}");
+
+            Utils.GetPrivateMethod(game_settings, "ChangeOptionValue").Invoke(game_settings, new object[] { name, value });
+            // Utils.GetPrivateMethod(game_settings, "__DoRpcChangeOptionValue").Invoke(game_settings, new object[] { name, value });
+            // Utils.GetPrivateMethod(game_settings, "RpcChangeOptionValue").Invoke(game_settings, new object[] { name, value });
         }
 
         static bool ParseChatCommandPerditioSettings(
@@ -36,7 +60,7 @@ namespace Perditio
             int length = chatArgs.LastIndexOf(' ');
             if (length == -1)
             {
-                chat_service.SendSystemMessageToIndividual(fromPlayer, "Command format is: !voteperditio <Option Name (string)> <Option (integer)>.");
+                chat_service.SendSystemMessageToIndividual(fromPlayer, "Command format is: !voteperditio <Option Name (string)> <Option (integer)>. Use !helpperditio for more information.");
                 return false;
             }
 
@@ -46,17 +70,17 @@ namespace Perditio
             int input_value_parsed;
             if (!int.TryParse(input_value, out input_value_parsed))
             {
-                chat_service.SendSystemMessageToIndividual(fromPlayer, "Command format is: !voteperditio <Option Name (string)> <Option (integer)>.");
+                chat_service.SendSystemMessageToIndividual(fromPlayer, "Command format is: !voteperditio <Option Name (string)> <Option (integer)>. Use !helpperditio for more information.");
                 return false;
             }
 
             List<SyncedOption> synced_options = Utils.GetPrivateValue<SyncListGameSettings>(game_settings, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>();
 
-            SyncedOption synced_option = synced_options.FirstOrDefault<SyncedOption>((Func<SyncedOption, bool>)(x => x.Name.Contains("Perditio") && x.Name.Contains(input_name)));
+            SyncedOption synced_option = synced_options.FirstOrDefault<SyncedOption>((Func<SyncedOption, bool>)(x => x.Name.Contains("Perditio") && x.Name.ToLower().Contains(input_name.ToLower())));
 
             if (synced_option == null)
             {
-                chat_service.SendSystemMessageToIndividual(fromPlayer, "Unknown perditio option name");
+                chat_service.SendSystemMessageToIndividual(fromPlayer, "Unknown perditio option name. Use !helpperditio for more information.");
                 return false;
             }
 
@@ -79,18 +103,25 @@ namespace Perditio
 
             if (good)
             {
-                option_name = input_name;
+                option_name = synced_option.Name;
                 option_value = input_value_parsed;
                 return true;
             }
 
-            chat_service.SendSystemMessageToIndividual(fromPlayer, "Option index out of range.");
+            chat_service.SendSystemMessageToIndividual(fromPlayer, $"Option index out of range.");
+            
             return false;
         }
 
         static void VotePerditioSettings(IPlayer fromPlayer, string chatArgs)
         {
             Debug.Log($"Perditio VotePerditioSettings: {chatArgs}");
+
+            if (!is_interface_dirty)
+            {
+                Debug.Log("Perditio map is not current one");
+                return;
+            }
 
             if (lobby_manager == null)
             {
@@ -127,6 +158,12 @@ namespace Perditio
         {
             Debug.Log($"Perditio ChangePerditioSettings: {chatArgs}");
 
+            if (!is_interface_dirty)
+            {
+                Debug.Log("Perditio map is not current one");
+                return;
+            }
+
             if (lobby_manager == null)
             {
                 Debug.Log("Perditio lobby_manager is null");
@@ -148,7 +185,30 @@ namespace Perditio
 
             SetSyncedOption(option_name, option_value, game_settings);
         }
-        
+
+        static int perditio_options_count = 0;
+
+        [HarmonyPatch(typeof(SkirmishGameSettings), "ChangeOptionValue")]
+        public class PatchChangeOptionValue
+        {
+            static void Prefix(ref SkirmishGameSettings __instance, ref string name, ref int newValue)
+            {
+                Debug.Log($"Perditio ChangeOptionValue Postfix name {name} newValue {newValue} perditio_options_count {perditio_options_count}");
+
+                if (perditio_options_count < 6 && Utils.GetPrivateValue<SkirmishLobbyManager>(__instance, "_lobbyManager").IsDedicatedServer)
+                {
+                    Debug.Log($"Perditio Overriding option change");
+
+                    if (name.ToLower().Contains("perditio"))
+                    {
+                        perditio_options_count++;
+                        name = "Victory Points";
+                        newValue = 1;
+                    }
+                }
+            }
+        }
+
 
         [HarmonyPatch(typeof(SkirmishLobbyManager), "OnMatchCreated")]
         public class PatchOnMatchCreated
@@ -161,6 +221,7 @@ namespace Perditio
                     Debug.Log("Perditio Registering Commands");
                     lobby_manager = __instance;
                     ChatService chat_service = Utils.GetPrivateValue<ChatService>(__instance, "_chatService");
+                    chat_service.RegisterChatCommand("!helpperditio", new ChatService.ChatCommandCallback(HelpPerditio));
                     chat_service.RegisterChatCommand("!voteperditio", new ChatService.ChatCommandCallback(VotePerditioSettings));
                     chat_service.RegisterChatCommand("!changeperditio", new ChatService.ChatCommandCallback(ChangePerditioSettings), true);
                 }
@@ -192,6 +253,8 @@ namespace Perditio
                 {
                     Debug.Log("Perditio interface clean");
                     is_interface_dirty = false;
+
+                    perditio_options_count = 0;
 
                     foreach (SyncedOption synced_option in Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>())
                     {
