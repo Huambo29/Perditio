@@ -67,9 +67,11 @@ MonoBehaviour:
   perlin_scale: 0.3125
   octaves_persistence: 0.8
   octaves_lacunarity: 1.25
-  density_cut_off: 0
-  perlin_offset: {x: 0, y: 0, z: 0}
-  perlin_rotation: {x: 0, y: 0, z: 0, w: 0}
+  compute_shader: {fileID: 7200000, guid: c1c1f755deb59e94387a36364e9c543c, type: 3}
+  skybox_cubemap: {fileID: 8900000, guid: cde925f9a9fce08428ce965ce5f907cb, type: 2}
+  skybox_resolution: 2048
+  skybox_fblrud: []
+  new_textures: []
 --- !u!114 &372073132846979692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -797,7 +799,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4854725071530977059}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 3000}
+  m_LocalPosition: {x: 0, y: 0, z: 1350}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4854725072475689495}
@@ -1020,7 +1022,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4854725072317536040}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -3000}
+  m_LocalPosition: {x: 0, y: 0, z: -1350}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4854725071278580293}
@@ -1247,14 +1249,14 @@ MonoBehaviour:
   _flavorDescription: 
   _mapImage: {fileID: 2800000, guid: 333321a1438325541b37ea56f24d3aa7, type: 3}
   _radius: 1500
-  _spawnRadius: 1450
+  _spawnRadius: 1350
   _maxPlayers: 10
   _allowSpawnSelection: 1
   _teamASpawns: {fileID: 4854725072317536022}
   _teamBSpawns: {fileID: 4854725071530977057}
   _pathfinding: {fileID: 11400000, guid: fb6b4e53b8aff744ba036f3d093b8c6a, type: 2}
   _lighting: {fileID: 0}
-  _skybox: {fileID: 0}
+  _skybox: {fileID: 11400000, guid: f8d82c59341c72c44bc48271a7a865e5, type: 2}
   _centralObjectivePosition: {fileID: 4854725071678439315}
   _teamAHomeObjective: {fileID: 7077278823578905195}
   _teamBHomeObjective: {fileID: 9174527259806636687}

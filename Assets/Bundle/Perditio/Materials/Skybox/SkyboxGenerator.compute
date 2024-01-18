@@ -1,0 +1,89 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+#include "..\..\..\..\Noisy-Nodes-master\NoiseShader\HLSL\ClassicNoise3D.hlsl"
+
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> ResultF;
+RWTexture2D<float4> ResultB;
+RWTexture2D<float4> ResultL;
+RWTexture2D<float4> ResultR;
+RWTexture2D<float4> ResultU;
+RWTexture2D<float4> ResultD;
+
+float InputResolution;
+
+float InputSkyboxDistance;
+
+float3 InputColorFirst;
+float3 InputColorSecond;
+float3 InputColorThird;
+
+float InputIntensityFirst;
+float InputIntensitySecond;
+float InputIntensityThird;
+
+float3 InputOffsetFirst;
+float3 InputOffsetSecond;
+float3 InputOffsetThird;
+
+float InputFalloff;
+
+int InputColorOctaves;
+
+float noise(float3 p) {
+    return 0.5 * cnoise(p) + 0.5;
+}
+
+float nebula(float3 p) {
+    int steps = 6;
+    float scale = pow(2.0, steps);
+    float3 displace;
+    for (int i = 0; i < steps; i++) {
+        displace = float3(
+            noise(p.xyz * scale + displace),
+            noise(p.yzx * scale + displace),
+            noise(p.zxy * scale + displace)
+        );
+        scale *= 0.5;
+    }
+    return noise(p * scale + displace);
+}
+
+float4 GetColor(float3 direction)
+{
+    //return float4(InputColor, 0.0) * nebula((direction * InputSkyboxDistance) + InputOffset);
+    float4 result = (float4(InputColorFirst, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetFirst) * InputIntensityFirst, 1.0), InputFalloff)) * (InputColorOctaves >= 1);
+    result += (float4(InputColorSecond, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetSecond) * InputIntensitySecond, 1.0), InputFalloff)) * (InputColorOctaves >= 2);
+    result += (float4(InputColorThird, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetThird) * InputIntensityThird, 1.0), InputFalloff)) * (InputColorOctaves >= 3);
+    return result / InputColorOctaves;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float pos_x = 2.0 * (id.x / InputResolution) - 1.0;
+    float pos_y = 2.0 * (id.y / InputResolution) - 1.0;
+
+    float3 direction;
+
+    direction = normalize(float3(pos_x, pos_y, 1.0));
+    ResultF[id.xy] = GetColor(direction);
+
+    direction = normalize(float3(-pos_x, pos_y, -1.0));
+    ResultB[id.xy] = GetColor(direction);
+
+    direction = normalize(float3(1.0, pos_y, -pos_x));
+    ResultL[id.xy] = GetColor(direction);
+
+    direction = normalize(float3(-1.0, pos_y, pos_x));
+    ResultR[id.xy] = GetColor(direction);
+
+    direction = normalize(float3(pos_x, -1.0, pos_y));
+    ResultU[id.xy] = GetColor(direction);
+    
+    direction = normalize(float3(pos_x, 1.0, -pos_y));
+    ResultD[id.xy] = GetColor(direction);
+}
