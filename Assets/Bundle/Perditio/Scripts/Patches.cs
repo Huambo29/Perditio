@@ -279,6 +279,12 @@ namespace Perditio
             {
                 Debug.Log("Perditio GetLaunchOptions");
 
+                if (!is_interface_dirty)
+                {
+                    Debug.Log("Perditio interface is clean");
+                    return;
+                }
+
                 //if (Utils.GetPrivateValue<SkirmishLobbyManager>(__instance, "_lobbyManager").IsDedicatedServer)
                 //{
                 //    Debug.Log("Perditio No settings exposing for dedicated servers");
