@@ -4,6 +4,5 @@
   <Namespace>Perditio</Namespace>
   <Maps>
     <Entry Name="Perditio (Procedural)" Address="Perditio.prefab"/>
-    <Entry Name="Perditio Eye (Procedural)" Address="Perditio Eye.prefab"/>
   </Maps>
 </BundleManifest>

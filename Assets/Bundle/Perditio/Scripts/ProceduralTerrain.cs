@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.VFX;
 using Networking;
 using Game;
 using Steamworks;
@@ -15,6 +17,10 @@ namespace Perditio
         Transform team_a_home;
         [SerializeField]
         Transform team_b_home;
+        [SerializeField]
+        Transform team_a_spawns;
+        [SerializeField]
+        Transform team_b_spawns;
         [SerializeField]
         Transform central_objective;
 
@@ -43,12 +49,12 @@ namespace Perditio
         [Header("Terrain Settings")]
         [SerializeField]
         int grid_resolution = 128;
-        [SerializeField]
-        float mesh_size = 1800f;
-        [SerializeField]
-        float drop_off_start = 700f;
-        [SerializeField]
-        float drop_off_end = 1100f;
+
+        float mesh_size;
+        float drop_off_start;
+        float drop_off_end;
+        float caps_min_distance;
+
         [SerializeField]
         int octaves = 10;
         [SerializeField]
@@ -454,6 +460,9 @@ namespace Perditio
             compute_shader.SetVector("InputColorSecond", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
             compute_shader.SetVector("InputColorThird", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
 
+            compute_shader.SetFloat("InputStarsDensity", 400f);
+            compute_shader.SetFloat("InputStarsCutoff", 0.8f);
+
             if (is_dedicated_server)
             {
                 return;
@@ -546,27 +555,39 @@ namespace Perditio
             team_b_home.position = -team_a_home.position;
             //central_objective.position += NextUnitVector() * 100f;
 
-            for (int i = 0; i < battlespace.DistributedObjectives.Length; i++)
+            bool even_caps = LobbySettings.instance.caps_number % 2 == 0;
+
+            Vector3[] cap_points = new Vector3[LobbySettings.instance.caps_number];
+
+            for (int i = 0; i < cap_points.Length; i++)
             {
-                if (i == 0)
+                if (i == 0 && !even_caps)
                 {
-                    battlespace.DistributedObjectives[i] = new Vector3(NextFloat(-mesh_size / 2f * 0.5f, mesh_size / 2f * 0.5f), NextFloat(-mesh_size / 2f * 0.5f, mesh_size / 2f * 0.5f), 0f);
+                    cap_points[i] = new Vector3(NextFloat(-mesh_size / 2f * 0.5f, mesh_size / 2f * 0.5f), NextFloat(-mesh_size / 2f * 0.5f, mesh_size / 2f * 0.5f), 0f);
                 }
-                else if (i % 2 == 1)
+                else if ((i % 2 == 1 && !even_caps) || (i % 2 == 0 && even_caps))
                 {
                     bool good_placement;
+                    int tries = 0;
                     do
                     {
+                        tries++;
+                        if (tries >= 1000000)
+                        {
+                            Debug.Log("Perditio too many tries");
+                            Utils.SetPrivateValue(battlespace, "_distributedObjectivePositions", cap_points.Take(i).ToArray());
+                            return;
+                        }
+
                         Vector3 random_vec = NextUnitVector();
-                        float random_vec_lenght = NextFloat(mesh_size / 2f * 0.1f + mesh_size / 4.5f, mesh_size / 2f - mesh_size / 9f);
-                        battlespace.DistributedObjectives[i] = random_vec * random_vec_lenght;
+                        float random_vec_lenght = NextFloat(caps_min_distance * 0.5f, LobbySettings.instance.radius - 200f);
+                        cap_points[i] = random_vec * random_vec_lenght;
                         good_placement = true;
                         for (int k = 0; k < i; k++)
                         {
-                            float minimum_caps_distance = 700f;
                             if (
-                                Vector3.Distance(battlespace.DistributedObjectives[k], battlespace.DistributedObjectives[i]) <= minimum_caps_distance ||
-                                Vector3.Distance(battlespace.DistributedObjectives[k], -battlespace.DistributedObjectives[i]) <= minimum_caps_distance
+                                Vector3.Distance(cap_points[k], cap_points[i]) <= caps_min_distance ||
+                                Vector3.Distance(cap_points[k], -cap_points[i]) <= caps_min_distance
                             )
                             {
                                 good_placement = false;
@@ -577,9 +598,11 @@ namespace Perditio
                 }
                 else
                 {
-                    battlespace.DistributedObjectives[i] = -battlespace.DistributedObjectives[i - 1];
+                    cap_points[i] = -cap_points[i - 1];
                 }
             }
+
+            Utils.SetPrivateValue(battlespace, "_distributedObjectivePositions", cap_points.Take(LobbySettings.instance.caps_number).ToArray());
         }
 
         void SetupDensityField()
@@ -635,9 +658,23 @@ namespace Perditio
             }
         }
 
+        void Awake()
+        {
+            try
+            {
+                SkirmishGameManager.Instance.CameraRig.gameObject.GetComponent<VisualEffect>().enabled = false;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(string.Format("Perditio Disabling default stars Failed With: {0}", e.ToString()));
+            }
+        }
+
         void Start()
         {
             Debug.Log("Perditio Starte");
+
+            float start_time = Time.realtimeSinceStartup;
 
             try
             {
@@ -656,13 +693,26 @@ namespace Perditio
                 mesh_renderer_tacview.material = tacview_material;
             }  
 
-            battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
-
             Utils.LogQuantumConsole($"Perditio scenario: {LobbySettings.instance.scenario}");
             Utils.LogQuantumConsole($"Perditio density: {LobbySettings.instance.terrain_density}");
             Utils.LogQuantumConsole($"Perditio roughness: {LobbySettings.instance.terrain_roughness}");
+            Utils.LogQuantumConsole($"Perditio radius: {LobbySettings.instance.radius}");
+            // Utils.LogQuantumConsole($"Perditio team size: {LobbySettings.instance.team_size}");
             Utils.LogQuantumConsole($"Perditio seed: {LobbySettings.instance.seed}");
 
+            battlespace = gameObject.GetComponentInParent<Game.Map.Battlespace>();
+
+            team_a_spawns.position = new Vector3(0, 0, -LobbySettings.instance.radius);
+            team_b_spawns.position = new Vector3(0, 0, LobbySettings.instance.radius);
+
+            team_a_home.position = new Vector3(0, 0, -LobbySettings.instance.radius * 0.5f);
+            team_b_home.position = new Vector3(0, 0, LobbySettings.instance.radius * 0.5f);
+
+            mesh_size = 2f * LobbySettings.instance.radius;
+            drop_off_start = 0.7777f * LobbySettings.instance.radius;
+            drop_off_end = 1.2222f * LobbySettings.instance.radius;
+
+            caps_min_distance = 0.7777f * LobbySettings.instance.radius;
 
             switch (LobbySettings.instance.terrain_roughness)
             {
@@ -683,23 +733,47 @@ namespace Perditio
                     break;
             }
 
-            Debug.Log(string.Format("Perditio Map Seed: {0}", LobbySettings.instance.seed));
-            Utils.LogQuantumConsole(string.Format("Map Seed: {0}", LobbySettings.instance.seed));
+            Debug.Log($"Perditio Init: {Time.realtimeSinceStartup - start_time} seconds");
+            start_time = Time.realtimeSinceStartup;
 
             rand = new System.Random(LobbySettings.instance.seed);
-
             GenerateSkybox();
 
+            Debug.Log($"Perditio Skybox: {Time.realtimeSinceStartup - start_time} seconds");
+            start_time = Time.realtimeSinceStartup;
+
+            rand = new System.Random(LobbySettings.instance.seed + 1);
             RandomizeScenarioPoints();
+
+            Debug.Log($"Perditio ScenarioPoints: {Time.realtimeSinceStartup - start_time} seconds");
+            start_time = Time.realtimeSinceStartup;
+
             SetupScenario();
+
+            Debug.Log($"Perditio SetupScenario: {Time.realtimeSinceStartup - start_time} seconds");
+            start_time = Time.realtimeSinceStartup;
+
+            rand = new System.Random(LobbySettings.instance.seed + 2);
             SetupDensityField();
 
+            Debug.Log($"Perditio DensityField: {Time.realtimeSinceStartup - start_time} seconds");
+            start_time = Time.realtimeSinceStartup;
+
             Mesh new_mesh = GenerateMesh();
+
+            Debug.Log($"Perditio GenerateMesh: {Time.realtimeSinceStartup - start_time} seconds");
+            start_time = Time.realtimeSinceStartup;
+
             mesh_filter_terrain.mesh = new_mesh;
             mesh_filter_tacview.mesh = new_mesh;
             mesh_collider.sharedMesh = new_mesh;
 
+            Debug.Log($"Perditio Mesh assigment: {Time.realtimeSinceStartup - start_time} seconds");
+            start_time = Time.realtimeSinceStartup;
+
             lighting.GetComponent<Transform>().rotation = NextQuaternion();
+            Debug.Log($"Perditio Lighting: {Time.realtimeSinceStartup - start_time} seconds");
+            start_time = Time.realtimeSinceStartup;
 
             try
             {
@@ -712,6 +786,9 @@ namespace Perditio
                 Debug.Log(string.Format("Perditio Finding Space Partitioner Failed With: {0}", e.ToString()));
             }
 
+            Debug.Log($"Perditio SpacePartitioner  {Time.realtimeSinceStartup - start_time} seconds");
+            start_time = Time.realtimeSinceStartup;
+
             try
             {
                 default_light = GameObject.Find("Default Skirmish Map Lighting");
@@ -723,6 +800,7 @@ namespace Perditio
                 Debug.Log(string.Format("Perditio Finding Default Skirmish Map Lighting Failed With: {0}", e.ToString()));
             }
         }
+
         bool performance_mode = false;
         bool default_lighting_mode = false;
 

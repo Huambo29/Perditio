@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 2347296708
+CRC: 784251648
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 074bc1ae24816287d35946e7a21e65a9
+    Hash: 51a298547eaafe8577669f8259c1b9c1
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 67fbd288843cd00e3f76c4b4fb33cb63
+    Hash: fd3e20a66c9fe282dfba2c603e06c190
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -64,7 +64,6 @@ Assets:
 - Assets/Bundle/Perditio/Materials/AsteroidShader.shadergraph
 - Assets/Bundle/Perditio/Materials/BasicTerrain.mat
 - Assets/Bundle/Perditio/Materials/TacviewFix.mat
-- Assets/Bundle/Perditio/Perditio Eye.prefab
 - Assets/Bundle/Perditio/Materials/Skybox/Skybox.asset
 - Assets/Bundle/Perditio/Perditio.prefab
 Dependencies: []
