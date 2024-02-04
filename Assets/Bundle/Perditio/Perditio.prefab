@@ -49,6 +49,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   team_a_home: {fileID: 7679815710824650826}
   team_b_home: {fileID: 6955113210303839313}
+  team_a_spawns: {fileID: 4858359421386674084}
+  team_b_spawns: {fileID: 4858359422169055149}
   central_objective: {fileID: 4858359421754205981}
   mesh_filter_terrain: {fileID: 7100055102564716055}
   mesh_renderer_terrain: {fileID: 4454235882487917476}
@@ -60,15 +62,15 @@ MonoBehaviour:
   tacview_material: {fileID: 2100000, guid: 0d503bf6be1356d48b2daa066f1eb363, type: 2}
   lighting: {fileID: 2501245912024585361}
   grid_resolution: 128
-  mesh_size: 1800
-  drop_off_start: 700
-  drop_off_end: 1100
   octaves: 10
   perlin_scale: 0.3125
   octaves_persistence: 0.8
   octaves_lacunarity: 1.25
   compute_shader: {fileID: 7200000, guid: c1c1f755deb59e94387a36364e9c543c, type: 3}
+<<<<<<< HEAD
   skybox_cubemap: {fileID: 8900000, guid: cde925f9a9fce08428ce965ce5f907cb, type: 2}
+=======
+>>>>>>> origin/main
   skybox_resolution: 2048
   skybox_fblrud: []
   new_textures: []

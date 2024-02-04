@@ -29,11 +29,21 @@ float3 InputOffsetFirst;
 float3 InputOffsetSecond;
 float3 InputOffsetThird;
 
+<<<<<<< HEAD
+=======
+float InputStarsDensity;
+float InputStarsCutoff;
+
+>>>>>>> origin/main
 float InputFalloff;
 
 int InputColorOctaves;
 
+<<<<<<< HEAD
 float noise(float3 p) {
+=======
+float noise(double3 p) {
+>>>>>>> origin/main
     return 0.5 * cnoise(p) + 0.5;
 }
 
@@ -52,6 +62,7 @@ float nebula(float3 p) {
     return noise(p * scale + displace);
 }
 
+<<<<<<< HEAD
 float4 GetColor(float3 direction)
 {
     //return float4(InputColor, 0.0) * nebula((direction * InputSkyboxDistance) + InputOffset);
@@ -59,13 +70,39 @@ float4 GetColor(float3 direction)
     result += (float4(InputColorSecond, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetSecond) * InputIntensitySecond, 1.0), InputFalloff)) * (InputColorOctaves >= 2);
     result += (float4(InputColorThird, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetThird) * InputIntensityThird, 1.0), InputFalloff)) * (InputColorOctaves >= 3);
     return result / InputColorOctaves;
+=======
+float4 stars(float3 p) {
+    float noise_value = noise(p) * (noise(p / 40.0) * 0.15 + 0.85) * (noise(p / 160.0) * 0.15 + 0.85);
+    
+    float t = (noise_value - 0.7) / 0.3;
+    //float t = 0.0;
+    t = max(1.0 * (noise_value >= InputStarsCutoff), min(1.0, max(0.0, t)));
+
+    return lerp(float4(0.0, 0.0, 0.0, 0.0), float4(1.0, 1.0, 1.0, 0.0), t);
+}
+
+float4 GetColor(float3 direction)
+{
+    float4 result = (float4(InputColorFirst, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetFirst) * InputIntensityFirst, 1.0), InputFalloff)) * (InputColorOctaves >= 1);
+    result += (float4(InputColorSecond, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetSecond) * InputIntensitySecond, 1.0), InputFalloff)) * (InputColorOctaves >= 2);
+    result += (float4(InputColorThird, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetThird) * InputIntensityThird, 1.0), InputFalloff)) * (InputColorOctaves >= 3);
+    result /= InputColorOctaves;
+
+    result += stars(direction * InputStarsDensity + InputOffsetFirst);
+    return result;
+>>>>>>> origin/main
 }
 
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
+<<<<<<< HEAD
     float pos_x = 2.0 * (id.x / InputResolution) - 1.0;
     float pos_y = 2.0 * (id.y / InputResolution) - 1.0;
+=======
+    float pos_x = 2.0 * (id.x / InputResolution - 0.5);
+    float pos_y = 2.0 * (id.y / InputResolution - 0.5);
+>>>>>>> origin/main
 
     float3 direction;
 
