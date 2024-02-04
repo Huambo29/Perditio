@@ -67,12 +67,13 @@ float4 stars(float3 p) {
 
 float4 GetColor(float3 direction)
 {
-    float4 result = stars(direction * InputStarsDensity + InputOffsetFirst);
-
-    result += (float4(InputColorFirst, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetFirst) * InputIntensityFirst, 1.0), InputFalloff)) * (InputColorOctaves >= 1);
+    float4 result = (float4(InputColorFirst, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetFirst) * InputIntensityFirst, 1.0), InputFalloff)) * (InputColorOctaves >= 1);
     result += (float4(InputColorSecond, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetSecond) * InputIntensitySecond, 1.0), InputFalloff)) * (InputColorOctaves >= 2);
     result += (float4(InputColorThird, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetThird) * InputIntensityThird, 1.0), InputFalloff)) * (InputColorOctaves >= 3);
-    return result / InputColorOctaves;
+    result /= InputColorOctaves;
+
+    result += stars(direction * InputStarsDensity + InputOffsetFirst);
+    return result;
 }
 
 [numthreads(8,8,1)]

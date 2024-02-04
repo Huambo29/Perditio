@@ -28,8 +28,14 @@ namespace Perditio
                 Debug.Log("Perditio lobby_manager is null");
                 return;
             }
-
             ChatService chat_service = Utils.GetPrivateValue<ChatService>(lobby_manager, "_chatService");
+
+            if (!is_interface_dirty)
+            {
+                Debug.Log("Perditio map is not current one");
+                chat_service.SendSystemMessageToIndividual(fromPlayer, "Perditio map is not currently selected");
+                return;
+            }
 
             chat_service.SendSystemMessageToIndividual(fromPlayer, "Commands are:");
             chat_service.SendSystemMessageToIndividual(fromPlayer, "!voteperditio <Option Name (string)> <Option (integer)>.");
@@ -115,6 +121,10 @@ namespace Perditio
                 case ModEntryPoint.SEED_FIELD_NAME_4:
                     good = (input_value_parsed >= 0 && input_value_parsed < ModEntryPoint.MAX_SEED);
                     break;
+                case ModEntryPoint.CAPS_POINTS_FIELD_NAME:
+                    good = (input_value_parsed >= ModEntryPoint.MIN_CAPS_POINTS && input_value_parsed < ModEntryPoint.MAX_CAPS_POINTS);
+                    input_value_parsed -= ModEntryPoint.MIN_CAPS_POINTS;
+                    break;
             }
 
             if (good)
@@ -133,12 +143,6 @@ namespace Perditio
         {
             Debug.Log($"Perditio VotePerditioSettings: {chatArgs}");
 
-            if (!is_interface_dirty)
-            {
-                Debug.Log("Perditio map is not current one");
-                return;
-            }
-
             if (lobby_manager == null)
             {
                 Debug.Log("Perditio lobby_manager is null");
@@ -146,6 +150,13 @@ namespace Perditio
             }
 
             ChatService chat_service = Utils.GetPrivateValue<ChatService>(lobby_manager, "_chatService");
+
+            if (!is_interface_dirty)
+            {
+                Debug.Log("Perditio map is not current one");
+                chat_service.SendSystemMessageToIndividual(fromPlayer, "Perditio map is not currently selected");
+                return;
+            }
 
             if (!Utils.GetPrivateValue<SkirmishDedicatedServerConfig>(lobby_manager, "_dediConfig").AllowMapVoting)
             {
@@ -174,12 +185,6 @@ namespace Perditio
         {
             Debug.Log($"Perditio ChangePerditioSettings: {chatArgs}");
 
-            if (!is_interface_dirty)
-            {
-                Debug.Log("Perditio map is not current one");
-                return;
-            }
-
             if (lobby_manager == null)
             {
                 Debug.Log("Perditio lobby_manager is null");
@@ -187,6 +192,13 @@ namespace Perditio
             }
 
             ChatService chat_service = Utils.GetPrivateValue<ChatService>(lobby_manager, "_chatService");
+
+            if (!is_interface_dirty)
+            {
+                Debug.Log("Perditio map is not current one");
+                chat_service.SendSystemMessageToIndividual(fromPlayer, "Perditio map is not currently selected");
+                return;
+            }
 
             string option_name;
             int option_value;
@@ -211,16 +223,12 @@ namespace Perditio
             {
                 Debug.Log($"Perditio ChangeOptionValue Postfix name {name} newValue {newValue} perditio_options_count {perditio_options_count}");
 
-                if (perditio_options_count < (7 + (!other_team_size_mod ? 1 : 0) + (last_scenario == "Control" ? 1 : 0)) && Utils.GetPrivateValue<SkirmishLobbyManager>(__instance, "_lobbyManager").IsDedicatedServer)
+                if (perditio_options_count < (7 + (!other_team_size_mod ? 1 : 0) + (last_scenario == "Control" ? 1 : 0)) && Utils.GetPrivateValue<SkirmishLobbyManager>(__instance, "_lobbyManager").IsDedicatedServer && name.ToLower().Contains("perditio"))
                 {
                     Debug.Log($"Perditio Overriding option change");
-
-                    if (name.ToLower().Contains("perditio"))
-                    {
-                        perditio_options_count++;
-                        name = "Victory Points";
-                        newValue = 1;
-                    }
+                    perditio_options_count++;
+                    name = "Victory Points";
+                    newValue = 1;
                 }
             }
         }
@@ -262,6 +270,8 @@ namespace Perditio
 
         static void DirtyInterface(SkirmishGameSettings __instance)
         {
+            Debug.Log("Perditio DirtyInterface");
+
             is_interface_dirty = true;
             last_scenario = __instance.SelectedScenario.ScenarioName;
 
@@ -284,18 +294,26 @@ namespace Perditio
             __instance.AddStringListOption(ModEntryPoint.SEED_FIELD_NAME_2, ModEntryPoint.SEED_FIELD_OPTIONS, seeds_generator.Next() % ModEntryPoint.MAX_SEED);
             __instance.AddStringListOption(ModEntryPoint.SEED_FIELD_NAME_3, ModEntryPoint.SEED_FIELD_OPTIONS, seeds_generator.Next() % ModEntryPoint.MAX_SEED);
             __instance.AddStringListOption(ModEntryPoint.SEED_FIELD_NAME_4, ModEntryPoint.SEED_FIELD_OPTIONS, seeds_generator.Next() % ModEntryPoint.MAX_SEED);
+
+            Debug.Log("Perditio DirtyInterface End");
         }
 
         static void CleanInterface(SkirmishGameSettings __instance)
         {
+            Debug.Log("Perditio CleanInterface");
+
             is_interface_dirty = false;
             last_scenario = "";
 
-            perditio_options_count = 0;
+            if (!__instance.isServer)
+            {
+                Debug.Log($"Perditio you are not server");
+                return;
+            }
 
             foreach (SyncedOption synced_option in Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>())
             {
-                Debug.Log($"syncedOption: {synced_option.Name}");
+                Debug.Log($"Perditio syncedOption: {synced_option.Name}");
                 if (synced_option.Name.Contains("Perditio"))
                 {
                     Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Remove(synced_option);
@@ -303,7 +321,7 @@ namespace Perditio
             }
         }
 
-        static void ResolveMapOrScenario(SkirmishGameSettings __instance)
+        static void ResolveMapOrScenario(SkirmishGameSettings __instance, bool force_reload = false)
         {
             other_team_size_mod = CheckOtherTeamSizeMod();
 
@@ -312,9 +330,9 @@ namespace Perditio
                 Debug.Log("Perditio interface dirty");
                 DirtyInterface(__instance);
             }
-            else if ((__instance.SelectedMap && __instance.SelectedMap.MapName.Contains("Perditio")) && is_interface_dirty && (last_scenario != __instance.SelectedScenario.ScenarioName))
+            else if ((__instance.SelectedMap && __instance.SelectedMap.MapName.Contains("Perditio")) && is_interface_dirty && ((last_scenario != __instance.SelectedScenario.ScenarioName) || force_reload))
             {
-                Debug.Log("Perditio interface reload");
+                Debug.Log($"Perditio interface reload");
                 CleanInterface(__instance);
                 DirtyInterface(__instance);
             }
@@ -322,6 +340,7 @@ namespace Perditio
             {
                 Debug.Log("Perditio interface clean");
                 CleanInterface(__instance);
+                perditio_options_count = 0;
             }
             else
             {
@@ -349,6 +368,16 @@ namespace Perditio
             }
         }
 
+        [HarmonyPatch(typeof(SkirmishGameSettings), "SetSelectedScenario")]
+        public class PatchSetSelectedScenario
+        {
+            static void Postfix(ref SkirmishGameSettings __instance)
+            {
+                Debug.Log("Perditio SetSelectedScenario Postfix");
+                ResolveMapOrScenario(__instance, true);
+            }
+        }
+
         [HarmonyPatch(typeof(SkirmishGameSettings), "GetLaunchOptions")]
         public class PatchSkirmishGameSettingsGetLaunchOptions
         {
@@ -361,14 +390,6 @@ namespace Perditio
                     Debug.Log("Perditio interface is clean");
                     return;
                 }
-
-                //if (Utils.GetPrivateValue<SkirmishLobbyManager>(__instance, "_lobbyManager").IsDedicatedServer)
-                //{
-                //    Debug.Log("Perditio No settings exposing for dedicated servers");
-               //     return;
-                //}
-
-                
 
                 List<SyncedOption> synced_options = Utils.GetPrivateValue<SyncListGameSettings>(__instance, "_syncedSettings").Where<SyncedOption>((Func<SyncedOption, bool>)(x => !x.Universal)).ToList<SyncedOption>();
 
@@ -417,9 +438,15 @@ namespace Perditio
             static bool Prefix(ref SkirmishGameSettings __instance, ref int __result, TeamIdentifier team)
             {
                 Debug.Log("Perditio GetMaxPlayersForTeam Prefix");
-                if (other_team_size_mod || !is_interface_dirty)
+                if (other_team_size_mod)
                 {
-                    Debug.Log("Perditio Other team size mod or interface clean");
+                    Debug.Log("Perditio Other team size mod");
+                    return true;
+                }
+
+                if (!is_interface_dirty)
+                {
+                    Debug.Log("Perditio interface clean");
                     return true;
                 }
 

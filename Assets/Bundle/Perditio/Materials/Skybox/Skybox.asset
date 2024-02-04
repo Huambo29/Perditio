@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 35918063, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
   m_Name: Skybox
   m_EditorClassIdentifier: 
-  HDRI: {fileID: 8900000, guid: cde925f9a9fce08428ce965ce5f907cb, type: 2}
+  HDRI: {fileID: 8900000, guid: b117a4e35128ae14cad5ec4ed8c6bacc, type: 3}
   Exposure: 0
   Rotation: 0

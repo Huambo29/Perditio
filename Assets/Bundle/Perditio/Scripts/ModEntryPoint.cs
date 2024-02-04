@@ -19,7 +19,7 @@ namespace Perditio
         public static readonly string[] RADIUS_FIELD_OPTIONS = Enumerable.Range(MIN_MAP_RADIUS, MAX_MAP_RADIUS - MIN_MAP_RADIUS).Select(x => $"{x.ToString()}km").ToArray();
 
         public const int MIN_TEAM_SIZE = 1;
-        public const int MAX_TEAM_SIZE = 101;
+        public const int MAX_TEAM_SIZE = 17;
         public const string TEAM_SIZE_FIELD_NAME = "Perditio Teams Size";
         public static readonly string[] TEAM_SIZE_FIELD_OPTIONS = Enumerable.Range(MIN_TEAM_SIZE, MAX_TEAM_SIZE - MIN_TEAM_SIZE).Select(x => x.ToString()).ToArray();
 

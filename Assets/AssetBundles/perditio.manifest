@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 784251648
+CRC: 3393304334
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 51a298547eaafe8577669f8259c1b9c1
+    Hash: 721e00c80f197b841b9384ab0ea709ae
   TypeTreeHash:
     serializedVersion: 2
-    Hash: fd3e20a66c9fe282dfba2c603e06c190
+    Hash: 52d4ff359ece6ad50b85ab4ad978a358
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -56,11 +56,11 @@ ClassTypes:
 SerializeReferenceClassIdentifiers: []
 Assets:
 - Assets/Bundle/Perditio/manifest.xml
+- Assets/Bundle/Perditio/Materials/Skybox/SkyboxTexture.png
 - Assets/Bundle/Perditio/Materials/AsteroidMaterial.mat
 - Assets/Bundle/Perditio/Materials/Skybox/SkyboxGenerator.compute
 - Assets/Bundle/Perditio/PerditioOctree.asset
 - Assets/Bundle/Perditio/Materials/TacviewElevationFix.mat
-- Assets/Bundle/Perditio/Materials/Skybox/SomeCubemap.cubemap
 - Assets/Bundle/Perditio/Materials/AsteroidShader.shadergraph
 - Assets/Bundle/Perditio/Materials/BasicTerrain.mat
 - Assets/Bundle/Perditio/Materials/TacviewFix.mat

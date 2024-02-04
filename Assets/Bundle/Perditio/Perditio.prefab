@@ -67,7 +67,6 @@ MonoBehaviour:
   octaves_persistence: 0.8
   octaves_lacunarity: 1.25
   compute_shader: {fileID: 7200000, guid: c1c1f755deb59e94387a36364e9c543c, type: 3}
-  skybox_cubemap: {fileID: 8900000, guid: cde925f9a9fce08428ce965ce5f907cb, type: 2}
   skybox_resolution: 2048
   skybox_fblrud: []
   new_textures: []
