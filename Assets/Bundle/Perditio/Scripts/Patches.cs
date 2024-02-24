@@ -158,27 +158,20 @@ namespace Perditio
                 return;
             }
 
-            if (!Utils.GetPrivateValue<SkirmishDedicatedServerConfig>(lobby_manager, "_dediConfig").AllowMapVoting)
+            string option_name;
+            int option_value;
+
+            SkirmishGameSettings game_settings = Utils.GetPrivateValue<SkirmishGameSettings>(lobby_manager, "_lobbySettings");
+
+            if (!ParseChatCommandPerditioSettings(fromPlayer, chatArgs, out option_name, out option_value, chat_service, game_settings))
             {
-                chat_service.SendSystemMessageToIndividual(fromPlayer, "Match settings voting is disabled on this server.");
+                Debug.Log("Perditio Parsing failed");
+                return;
             }
-            else
-            {
-                string option_name;
-                int option_value;
 
-                SkirmishGameSettings game_settings = Utils.GetPrivateValue<SkirmishGameSettings>(lobby_manager, "_lobbySettings");
-
-                if (!ParseChatCommandPerditioSettings(fromPlayer, chatArgs, out option_name, out option_value, chat_service, game_settings))
-                {
-                    Debug.Log("Perditio Parsing failed");
-                    return;
-                }
-
-                Utils.GetPrivateValue<LobbyVoteTracker>(lobby_manager, "_voteTracker")
-                    .StartVoteOption(fromPlayer, option_name, option_value.ToString(), 
-                    (Action)(() => SetSyncedOption(option_name, option_value, game_settings)));
-            }
+            Utils.GetPrivateValue<LobbyVoteTracker>(lobby_manager, "_voteTracker")
+                .StartVoteOption(fromPlayer, option_name, option_value.ToString(),
+                (Action)(() => SetSyncedOption(option_name, option_value, game_settings)));
         }
 
         static void ChangePerditioSettings(IPlayer fromPlayer, string chatArgs)
