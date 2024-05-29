@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1723453830, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
+  m_Name: PerditioInfo
+  m_EditorClassIdentifier: 
+  _mapReference:
+    m_AssetGUID: 497e878b5f1fedf4ebc4f14bd6f10ec6
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  _mapName: Perditio (Procedural)
+  _mapKey: tdAS9vY840iVGm-_fBrhnw
+  _mapImage: {fileID: 2800000, guid: 37cf0df34473ce54a80f2beb4ad5d48b, type: 3}
+  _maxPlayers: 8
+  _teamASpawnCount: 4
+  _teamBSpawnCount: 4
+  _hasCentralObjective: 1
+  _distributedObjectiveCount: 3
+  _hasTeamAHome: 1
+  _hasTeamBHome: 1
+  _scenarioSettings: []
+  _modId: 0

@@ -435,7 +435,6 @@ namespace Perditio
             {
                 Utility.Skybox skybox = battlespace.Skybox;
                 skybox_cubemap = skybox.HDRI;
-
                 skybox_fblrud = new RenderTexture[6];
 
                 for (int i = 0; i < 6; i++)
@@ -484,10 +483,9 @@ namespace Perditio
             compute_shader.Dispatch(0, skybox_resolution / 8, skybox_resolution / 8, 1);
 
             RenderTexture old_render_texture = RenderTexture.active;
-
             Texture2D new_texture = new Texture2D(skybox_resolution, skybox_resolution, TextureFormat.RGBAFloat, false);
-
-            RenderTexture.active = skybox_fblrud[0];
+            
+			RenderTexture.active = skybox_fblrud[0];
             new_texture.ReadPixels(new Rect(0, 0, skybox_resolution, skybox_resolution), 0, 0);
             new_texture.Apply();
             skybox_cubemap.SetPixels(new_texture.GetPixels(), CubemapFace.PositiveZ);
@@ -782,7 +780,14 @@ namespace Perditio
                     octaves_persistence = 1.0f;
                     break;
             }
-            MeasureTime("Init");
+
+			MeasureTime("Init");
+
+			rand = new System.Random(LobbySettings.instance.seed);
+			string sector = ModEntryPoint.SECTOR_NAMES_WORDLIST[rand.Next() % ModEntryPoint.SECTOR_NAMES_WORDLIST.Length];
+			string system = ModEntryPoint.SYSTEM_NAMES_WORDLIST[rand.Next() % ModEntryPoint.SYSTEM_NAMES_WORDLIST.Length];
+			Utils.SetPrivateValue(battlespace, "_locationName", $"{sector} Sector, {system} System");
+            MeasureTime("LocationName");
 
             rand = new System.Random(LobbySettings.instance.seed);
             GenerateSkybox();

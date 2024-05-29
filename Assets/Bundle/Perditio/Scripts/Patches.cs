@@ -2,14 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 using HarmonyLib;
+using TMPro;
 
 using Utility;
 using Game;
 using Modding;
 using Game.Map;
 using Networking;
+using Missions.Nodes.Scenario;
 
 namespace Perditio
 {
@@ -109,11 +112,9 @@ namespace Perditio
                     break;
                 case ModEntryPoint.RADIUS_FIELD_NAME:
                     good = (input_value_parsed >= ModEntryPoint.MIN_MAP_RADIUS && input_value_parsed < ModEntryPoint.MAX_MAP_RADIUS);
-                    input_value_parsed -= ModEntryPoint.MIN_MAP_RADIUS;
                     break;
                 case ModEntryPoint.TEAM_SIZE_FIELD_NAME:
                     good = (input_value_parsed >= ModEntryPoint.MIN_TEAM_SIZE && input_value_parsed < ModEntryPoint.MAX_TEAM_SIZE);
-                    input_value_parsed -= ModEntryPoint.MIN_TEAM_SIZE;
                     break;
                 case ModEntryPoint.SEED_FIELD_NAME_1:
                 case ModEntryPoint.SEED_FIELD_NAME_2:
@@ -123,7 +124,6 @@ namespace Perditio
                     break;
                 case ModEntryPoint.CAPS_POINTS_FIELD_NAME:
                     good = (input_value_parsed >= ModEntryPoint.MIN_CAPS_POINTS && input_value_parsed < ModEntryPoint.MAX_CAPS_POINTS);
-                    input_value_parsed -= ModEntryPoint.MIN_CAPS_POINTS;
                     break;
             }
 
@@ -261,6 +261,30 @@ namespace Perditio
             return false;
         }
 
+		static void FixSliderOption(string slider_name, int min_value, int max_value)
+		{
+			Debug.Log($"Perditio Fixing Slider: {slider_name}");
+			
+			foreach (RectTransform slider_transform in UnityEngine.Object.FindObjectsOfType<RectTransform>())
+        	{
+				if (slider_transform.gameObject.name != "Template - Slider(Clone)")
+				{
+					continue;
+				}
+
+				if (slider_transform.Find("Name").GetComponent<TextMeshProUGUI>().text == slider_name)
+				{
+					Debug.Log("Perditio Slider found");
+
+					Slider slider_component = slider_transform.GetComponentInChildren<Slider>();
+					slider_component.minValue = (float)min_value;
+					slider_component.maxValue = (float)max_value;
+
+					break;
+				}
+        	}
+		}
+
         static void DirtyInterface(SkirmishGameSettings __instance)
         {
             Debug.Log("Perditio DirtyInterface");
@@ -270,23 +294,35 @@ namespace Perditio
 
             if (last_scenario == "Control" || last_scenario == "Tug Of War")
             {
-                __instance.AddStringListOption(ModEntryPoint.CAPS_POINTS_FIELD_NAME, ModEntryPoint.CAPS_POINTS_FIELD_OPTIONS, 4);
+				__instance.AddSliderOption(ModEntryPoint.CAPS_POINTS_FIELD_NAME, 0, 0, 5, false, "0", "Perditio", "", "");
+				FixSliderOption(ModEntryPoint.CAPS_POINTS_FIELD_NAME, ModEntryPoint.MIN_CAPS_POINTS, ModEntryPoint.MAX_CAPS_POINTS - 1);
             }
 
             __instance.AddStringListOption(ModEntryPoint.DENSITY_FIELD_NAME, ModEntryPoint.DENSITY_FIELD_OPTIONS, 0);
             __instance.AddStringListOption(ModEntryPoint.ROUGHNESS_FIELD_NAME, ModEntryPoint.ROUGHNESS_FIELD_OPTIONS, 2);
 
-            __instance.AddStringListOption(ModEntryPoint.RADIUS_FIELD_NAME, ModEntryPoint.RADIUS_FIELD_OPTIONS, 7);
+			__instance.AddSliderOption(ModEntryPoint.RADIUS_FIELD_NAME, 0, 0, 10, false, "0", "Perditio", "", "km");
+			FixSliderOption(ModEntryPoint.RADIUS_FIELD_NAME, ModEntryPoint.MIN_MAP_RADIUS, ModEntryPoint.MAX_MAP_RADIUS - 1);
+
             if (!other_team_size_mod)
             {
-                __instance.AddStringListOption(ModEntryPoint.TEAM_SIZE_FIELD_NAME, ModEntryPoint.TEAM_SIZE_FIELD_OPTIONS, 3);
+				__instance.AddSliderOption(ModEntryPoint.TEAM_SIZE_FIELD_NAME, 0, 0, 4, false, "0", "Perditio", "", "");
+				FixSliderOption(ModEntryPoint.TEAM_SIZE_FIELD_NAME, ModEntryPoint.MIN_TEAM_SIZE, ModEntryPoint.MAX_TEAM_SIZE - 1);
             }
 
             System.Random seeds_generator = new System.Random((int)DateTimeOffset.Now.ToUnixTimeSeconds());
-            __instance.AddStringListOption(ModEntryPoint.SEED_FIELD_NAME_1, ModEntryPoint.SEED_FIELD_OPTIONS, seeds_generator.Next() % ModEntryPoint.MAX_SEED);
-            __instance.AddStringListOption(ModEntryPoint.SEED_FIELD_NAME_2, ModEntryPoint.SEED_FIELD_OPTIONS, seeds_generator.Next() % ModEntryPoint.MAX_SEED);
-            __instance.AddStringListOption(ModEntryPoint.SEED_FIELD_NAME_3, ModEntryPoint.SEED_FIELD_OPTIONS, seeds_generator.Next() % ModEntryPoint.MAX_SEED);
-            __instance.AddStringListOption(ModEntryPoint.SEED_FIELD_NAME_4, ModEntryPoint.SEED_FIELD_OPTIONS, seeds_generator.Next() % ModEntryPoint.MAX_SEED);
+
+			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_1, 0, 0, seeds_generator.Next() % ModEntryPoint.MAX_SEED, false, "0", "Perditio", "", "");
+			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_1, 0, ModEntryPoint.MAX_SEED - 1);
+
+			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_2, 0, 0, seeds_generator.Next() % ModEntryPoint.MAX_SEED, false, "0", "Perditio", "", "");
+			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_2, 0, ModEntryPoint.MAX_SEED - 1);
+
+			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_3, 0, 0, seeds_generator.Next() % ModEntryPoint.MAX_SEED, false, "0", "Perditio", "", "");
+			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_3, 0, ModEntryPoint.MAX_SEED - 1);
+
+			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_4, 0, 0, seeds_generator.Next() % ModEntryPoint.MAX_SEED, false, "0", "Perditio", "", "");
+			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_4, 0, ModEntryPoint.MAX_SEED - 1);
 
             Debug.Log("Perditio DirtyInterface End");
         }
@@ -318,18 +354,18 @@ namespace Perditio
         {
             other_team_size_mod = CheckOtherTeamSizeMod();
 
-            if ((__instance.SelectedMap && __instance.SelectedMap.MapName.Contains("Perditio")) && !is_interface_dirty)
+            if ((__instance.SelectedMap != null && __instance.SelectedMap.MapName.Contains("Perditio")) && !is_interface_dirty)
             {
                 Debug.Log("Perditio interface dirty");
                 DirtyInterface(__instance);
             }
-            else if ((__instance.SelectedMap && __instance.SelectedMap.MapName.Contains("Perditio")) && is_interface_dirty && ((last_scenario != __instance.SelectedScenario.ScenarioName) || force_reload))
+            else if ((__instance.SelectedMap != null && __instance.SelectedMap.MapName.Contains("Perditio")) && is_interface_dirty && ((last_scenario != __instance.SelectedScenario.ScenarioName) || force_reload))
             {
                 Debug.Log($"Perditio interface reload");
                 CleanInterface(__instance);
                 DirtyInterface(__instance);
             }
-            else if ((__instance.SelectedMap && !__instance.SelectedMap.MapName.Contains("Perditio")) && is_interface_dirty)
+            else if ((__instance.SelectedMap != null && !__instance.SelectedMap.MapName.Contains("Perditio")) && is_interface_dirty)
             {
                 Debug.Log("Perditio interface clean");
                 CleanInterface(__instance);
@@ -338,6 +374,18 @@ namespace Perditio
             else
             {
                 Debug.Log("Perditio interface already set");
+            }
+        }
+
+		[HarmonyPatch(typeof(SyncedSliderOption), "BuildSliderValueText")]
+        public class PatchBuildSliderValueText
+        {
+            static void Postfix(ref string __result, string negSideName)
+            {
+				Debug.Log("Perditio BuildSliderValueText Postfix");
+                if (negSideName == "Perditio") {
+					__result = __result.Replace("+", "");
+				}
             }
         }
 
@@ -388,14 +436,14 @@ namespace Perditio
 
                 TerrainDensity density = (TerrainDensity)synced_options.FirstOrDefault<SyncedOption>((Func<SyncedOption, bool>)(x => x.Name == ModEntryPoint.DENSITY_FIELD_NAME)).Value;
                 TerrainRoughness roughness = (TerrainRoughness)synced_options.FirstOrDefault<SyncedOption>((Func<SyncedOption, bool>)(x => x.Name == ModEntryPoint.ROUGHNESS_FIELD_NAME)).Value;
-                float radius = 100f * (ModEntryPoint.MIN_MAP_RADIUS + synced_options.FirstOrDefault<SyncedOption>((Func<SyncedOption, bool>)(x => x.Name == ModEntryPoint.RADIUS_FIELD_NAME)).Value);
+                float radius = 100f * synced_options.FirstOrDefault<SyncedOption>((Func<SyncedOption, bool>)(x => x.Name == ModEntryPoint.RADIUS_FIELD_NAME)).Value;
                 int team_size;
                 if (other_team_size_mod)
                 {
                     team_size = 4;
                 } else
                 {
-                    team_size = ModEntryPoint.MIN_TEAM_SIZE + synced_options.FirstOrDefault<SyncedOption>((Func<SyncedOption, bool>)(x => x.Name == ModEntryPoint.TEAM_SIZE_FIELD_NAME)).Value;
+                    team_size = synced_options.FirstOrDefault<SyncedOption>((Func<SyncedOption, bool>)(x => x.Name == ModEntryPoint.TEAM_SIZE_FIELD_NAME)).Value;
                 }
 
                 int seed_1 = synced_options.FirstOrDefault<SyncedOption>((Func<SyncedOption, bool>)(x => x.Name == ModEntryPoint.SEED_FIELD_NAME_1)).Value;
@@ -407,7 +455,7 @@ namespace Perditio
                 int caps_number = 5;
                 if (caps_option != null)
                 {
-                    caps_number = ModEntryPoint.MIN_CAPS_POINTS + caps_option.Value;
+                    caps_number = caps_option.Value;
                 }
 
                 LobbySettings.instance = new LobbySettings(
@@ -419,9 +467,6 @@ namespace Perditio
                     seed_1 + 256 * (seed_2 + 256 * (seed_3 + 256 * (seed_4))),
                     caps_number
                 );
-
-                Utils.SetPrivateValue(__result.Map, "_radius", LobbySettings.instance.radius + 200f);
-                Utils.SetPrivateValue(__result.Map, "_spawnRadius", LobbySettings.instance.radius + 50f);
             }
         }
 
@@ -460,10 +505,26 @@ namespace Perditio
                     return true;
                 }
                 
-                __result = ModEntryPoint.MIN_TEAM_SIZE + team_size_option.Value;
+                __result = team_size_option.Value;
                 return false;
             }
         }
+
+		[HarmonyPatch(typeof(SpacePartitioner), "Build")]
+        public class PatchBuildSpace
+        {
+            static void Prefix(Battlespace map)
+            {
+				Debug.Log("Perditio Build SpacePartitioner Prefix");
+				if (is_interface_dirty)
+				{
+					Debug.Log("Perditio Setting battlespace radius");
+
+					Utils.SetPrivateValue(map, "_radius", LobbySettings.instance.radius + 200f);
+					Utils.SetPrivateValue(map, "_spawnRadius", LobbySettings.instance.radius + 50f);
+				}
+			}
+		}
 
         [HarmonyPatch(typeof(SkirmishGameManager), "StateTransferringFleets")]
         public class PatchStateTransferringFleets
@@ -472,18 +533,15 @@ namespace Perditio
             {
                 Debug.Log("Perditio StateTransferringFleets Prefix");
 
-
-                Battlespace battlespace = __instance.LoadedMap;
-
                 if (!other_team_size_mod && is_interface_dirty)
                 {
                     Debug.Log("Perditio No other team size mod and interface dirty");
 
                     int team_size = LobbySettings.instance.team_size;
-                    SpawnGroup _teamASpawns = Utils.GetPrivateValue<SpawnGroup>(battlespace, "_teamASpawns");
+                    SpawnGroup _teamASpawns = Utils.GetPrivateValue<SpawnGroup>(__instance.LoadedMap, "_teamASpawns");
                     ExpandSpawnGroup(_teamASpawns, team_size);
 
-                    SpawnGroup _teamBSpawns = Utils.GetPrivateValue<SpawnGroup>(battlespace, "_teamBSpawns");
+                    SpawnGroup _teamBSpawns = Utils.GetPrivateValue<SpawnGroup>(__instance.LoadedMap, "_teamBSpawns");
                     ExpandSpawnGroup(_teamBSpawns, team_size);
                 }
             }

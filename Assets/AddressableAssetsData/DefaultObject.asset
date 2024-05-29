@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 35918063, guid: ed5f5928d76bfef4aa735d8efdf3d677, type: 3}
-  m_Name: Skybox
+  m_Script: {fileID: 11500000, guid: 3a189bb168d8d90478a09ea08c2f3d72, type: 3}
+  m_Name: DefaultObject
   m_EditorClassIdentifier: 
-  HDRI: {fileID: 8900000, guid: a6f9fd52c195f494c9909d8255c37bb1, type: 2}
-  Exposure: 0
-  Rotation: 0
+  m_AddressableAssetSettingsGuid: 33aa9ad244fc576439f13d5c8fc9ec74
