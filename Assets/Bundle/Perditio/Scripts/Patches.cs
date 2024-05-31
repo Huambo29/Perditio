@@ -298,7 +298,7 @@ namespace Perditio
 				FixSliderOption(ModEntryPoint.CAPS_POINTS_FIELD_NAME, ModEntryPoint.MIN_CAPS_POINTS, ModEntryPoint.MAX_CAPS_POINTS - 1);
             }
 
-            __instance.AddStringListOption(ModEntryPoint.DENSITY_FIELD_NAME, ModEntryPoint.DENSITY_FIELD_OPTIONS, 0);
+            __instance.AddStringListOption(ModEntryPoint.DENSITY_FIELD_NAME, ModEntryPoint.DENSITY_FIELD_OPTIONS, 2);
             __instance.AddStringListOption(ModEntryPoint.ROUGHNESS_FIELD_NAME, ModEntryPoint.ROUGHNESS_FIELD_OPTIONS, 2);
 
 			__instance.AddSliderOption(ModEntryPoint.RADIUS_FIELD_NAME, 0, 0, 10, false, "0", "Perditio", "", "km");
