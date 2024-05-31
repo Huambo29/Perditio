@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
+
 using UnityEngine;
 using UnityEngine.VFX;
+
 using Networking;
 using Game;
 using Steamworks;
@@ -674,7 +677,7 @@ namespace Perditio
 
         void CalculateDensityField()
         {
-            for (int x = 0; x < grid_resolution; x++)
+			Parallel.For(0, grid_resolution, x =>
             {
                 for (int y = 0; y < grid_resolution; y++)
                 {
@@ -692,7 +695,7 @@ namespace Perditio
                         }
                     }
                 }
-            }
+            });
         }
 
         void Awake()
