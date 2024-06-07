@@ -432,8 +432,10 @@ namespace Perditio
             return (NextQuaternion() * Vector3.up);
         }
 
-        void GenerateSkybox()
+        void GenerateSkybox(Vector3 light_direction)
         {
+			light_direction.y = -light_direction.y;
+
             if (!is_dedicated_server)
             {
                 Utility.Skybox skybox = battlespace.Skybox;
@@ -467,6 +469,10 @@ namespace Perditio
             compute_shader.SetVector("InputColorFirst", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
             compute_shader.SetVector("InputColorSecond", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
             compute_shader.SetVector("InputColorThird", new Vector3(NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f), NextFloat(0.0f, 1.0f)));
+
+			compute_shader.SetVector("LightDirection", light_direction);
+			compute_shader.SetFloat("SunDegreesSize", NextFloat(2f, 7.0f));
+			compute_shader.SetFloat("SunTemperature", NextFloat(3500.0f, 10000.0f));
 
             compute_shader.SetFloat("InputStarsDensity", 400f);
             compute_shader.SetFloat("InputStarsCutoff", 0.8f);
@@ -792,8 +798,22 @@ namespace Perditio
 			Utils.SetPrivateValue(battlespace, "_locationName", $"{sector} Sector, {system} System");
             MeasureTime("LocationName");
 
+			rand = new System.Random(LobbySettings.instance.seed);
+            lighting.GetComponent<Transform>().rotation = NextQuaternion();
+            try
+            {
+                default_light = GameObject.Find("Default Skirmish Map Lighting");
+                lighting.SetActive(true);
+                default_light.SetActive(false);
+            }
+            catch (Exception e)
+            {
+                Debug.Log(string.Format("Perditio Finding Default Skirmish Map Lighting Failed With: {0}", e.ToString()));
+            }
+            MeasureTime("Lighting");
+
             rand = new System.Random(LobbySettings.instance.seed);
-            GenerateSkybox();
+            GenerateSkybox(lighting.GetComponent<Transform>().rotation * -Vector3.forward);
             MeasureTime("Skybox");
 
             rand = new System.Random(LobbySettings.instance.seed + 2);
@@ -833,19 +853,6 @@ namespace Perditio
                 Debug.Log(string.Format("Perditio Finding Space Partitioner Failed With: {0}", e.ToString()));
             }
             MeasureTime("SpacePartitioner");
-
-            lighting.GetComponent<Transform>().rotation = NextQuaternion();
-            try
-            {
-                default_light = GameObject.Find("Default Skirmish Map Lighting");
-                lighting.SetActive(true);
-                default_light.SetActive(false);
-            }
-            catch (Exception e)
-            {
-                Debug.Log(string.Format("Perditio Finding Default Skirmish Map Lighting Failed With: {0}", e.ToString()));
-            }
-            MeasureTime("Lighting");
         }
 
         bool performance_mode = false;

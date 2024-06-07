@@ -48,7 +48,7 @@ namespace Perditio
             {
                 if (_instance == null)
                 {
-                    _instance = new LobbySettings("Control", TerrainDensity.Random, TerrainRoughness.Default, 1000, 4, 0, 5);
+                    _instance = new LobbySettings("Control", TerrainDensity.Random, TerrainRoughness.Default, 1000, 4, 731274325, 5);
                 }
                 return _instance;
             }

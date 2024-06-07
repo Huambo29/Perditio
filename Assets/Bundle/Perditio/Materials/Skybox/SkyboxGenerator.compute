@@ -36,6 +36,10 @@ float InputFalloff;
 
 int InputColorOctaves;
 
+float3 LightDirection;
+float SunDegreesSize;
+float SunTemperature;
+
 float noise(double3 p) {
     return 0.5 * cnoise(p) + 0.5;
 }
@@ -65,6 +69,18 @@ float4 stars(float3 p) {
     return lerp(float4(0.0, 0.0, 0.0, 0.0), float4(1.0, 1.0, 1.0, 0.0), t);
 }
 
+float3 blackbody(float Temperature)
+{
+    float3 color = float3(255.0, 255.0, 255.0);
+    color.x = 56100000. * pow(Temperature,(-3.0 / 2.0)) + 148.0;
+    color.y = 100.04 * log(Temperature) - 623.6;
+    if (Temperature > 6500.0) color.y = 35200000.0 * pow(Temperature,(-3.0 / 2.0)) + 184.0;
+   	color.z = 194.18 * log(Temperature) - 1448.6;
+   	color = clamp(color, 0.0, 255.0)/255.0;
+    if (Temperature < 1000.0) color *= Temperature/1000.0;
+   	return color;
+}
+
 float4 GetColor(float3 direction)
 {
     float4 result = (float4(InputColorFirst, 0.0) * pow(min(nebula((direction * InputSkyboxDistance) + InputOffsetFirst) * InputIntensityFirst, 1.0), InputFalloff)) * (InputColorOctaves >= 1);
@@ -73,7 +89,11 @@ float4 GetColor(float3 direction)
     result /= InputColorOctaves;
 
     result += stars(direction * InputStarsDensity + InputOffsetFirst);
-    return result;
+
+	float sun_dot = max(dot(direction, LightDirection) - 1.0 + (0.00015230485 * SunDegreesSize), 0.0) / (0.00015230485 * SunDegreesSize);
+	float4 sun_color = float4(blackbody(SunTemperature), 0.0);
+	float4 sun = lerp(float4(0.0, 0.0, 0.0, 0.0), sun_color, max(min((sun_dot - 0.95) / 0.05, 1.0), 0.0));
+    return max(result, sun);
 }
 
 [numthreads(8,8,1)]

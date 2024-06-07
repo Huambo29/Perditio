@@ -63,6 +63,62 @@ MonoBehaviour:
     m_Address: Assets/Bundle/Perditio/Materials/Skybox/Skybox.cubemap
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 993153f463c45d94a965eb6d6220e132
+    m_Address: Assets/Bundle/Perditio/Materials/AsteroidMaterialRework.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 8df47b33bacbdab4e86e5c4129fd7d55
+    m_Address: Assets/Bundle/Perditio/Materials/AsteroidShaderRework.shadergraph
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 76953e8889f630948b59237922396184
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/TCom_Rock_CliffVolcanic_4K_ao.tif
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 0f672b6808f121549a543942b0e27db2
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/TCom_Rock_CliffVolcanic_4K_albedo.tif
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 391113e90f37b5f4ea307402d641718b
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/TCom_Rock_CliffVolcanic_4K_height.tif
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 6d752c6036455114e973dbc421ef19cb
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/TCom_Rock_CliffVolcanic_4K_roughness.tif
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 322ecb9991f8be149b49a01a4bc12cef
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/TCom_Rock_CliffVolcanic_4K_normal.tif
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b0eca4ee889148145ace12b94b6ebd71
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/GrungeWall02_MR_4K/GrungeWall02_4K_Roughness.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d47ae285bb7db1542b29962edda31e02
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/GrungeWall02_MR_4K/GrungeWall02_4K_Height.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 43813268918c47a46a55a933a170b5e7
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/GrungeWall02_MR_4K/GrungeWall02_4K_Normal.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: d83a049d1ee2ede4f87b97a4c82231b1
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/GrungeWall02_MR_4K/GrungeWall02_4K_BaseColor.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 13499e253241a1b479e60afccaf8b7a2
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/GrungeWall02_MR_4K/GrungeWall02_4K_AO.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b1c10bc8180b21d4ba7daee2b1423062
+    m_Address: Assets/Bundle/Perditio/Materials/Textures/GrungeWall02_MR_4K/GrungeWall.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 37cf0df34473ce54a80f2beb4ad5d48b
+    m_Address: Assets/Bundle/Perditio/preview.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 33aa9ad244fc576439f13d5c8fc9ec74, type: 2}
   m_SchemaSet:
