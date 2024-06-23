@@ -704,18 +704,6 @@ namespace Perditio
             });
         }
 
-        void Awake()
-        {
-            try
-            {
-                SkirmishGameManager.Instance.CameraRig.gameObject.GetComponent<VisualEffect>().enabled = false;
-            }
-            catch (Exception e)
-            {
-                Debug.Log(string.Format("Perditio Disabling default stars Failed With: {0}", e.ToString()));
-            }
-        }
-
         float start_time = 0f;
         void MeasureTime(string name)
         {
@@ -795,7 +783,7 @@ namespace Perditio
 			rand = new System.Random(LobbySettings.instance.seed);
 			string sector = ModEntryPoint.SECTOR_NAMES_WORDLIST[rand.Next() % ModEntryPoint.SECTOR_NAMES_WORDLIST.Length];
 			string system = ModEntryPoint.SYSTEM_NAMES_WORDLIST[rand.Next() % ModEntryPoint.SYSTEM_NAMES_WORDLIST.Length];
-			Utils.SetPrivateValue(battlespace, "_locationName", $"{sector} Sector, {system} System");
+			// Utils.SetPrivateValue(battlespace, "_locationName", $"{sector} Sector, {system} System");
             MeasureTime("LocationName");
 
 			rand = new System.Random(LobbySettings.instance.seed);
@@ -853,6 +841,16 @@ namespace Perditio
                 Debug.Log(string.Format("Perditio Finding Space Partitioner Failed With: {0}", e.ToString()));
             }
             MeasureTime("SpacePartitioner");
+
+			try
+            {
+				GameObject.Find("Starfield").SetActive(false); 
+            }
+            catch (Exception e)
+            {
+                Debug.Log(string.Format("Perditio Disabling default stars and destroying HDRP Compositor Failed With: {0}", e.ToString()));
+            }
+			MeasureTime("StarsMurder");
         }
 
         bool performance_mode = false;
@@ -878,23 +876,16 @@ namespace Perditio
 
             if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.Period))
             {
-                if (default_lighting_mode)
-                {
-                    Debug.Log("Perditio Default Lighting Mode Disabled");
-                    default_lighting_mode = false;
+				Debug.Log($"Perditio Murdering HDRP Compositors");
 
-                    lighting.SetActive(true);
-                    default_light.SetActive(false);
-                }
-                else
-                {
-                    Debug.Log("Perditio Default Lighting Mode Enabled");
-
-                    default_lighting_mode = true;
-
-                    lighting.SetActive(false);
-                    default_light.SetActive(true);
-                }
+				foreach (GameObject game_object in FindObjectsOfType<GameObject>() as GameObject[])
+				{
+				    if(game_object.name == "HDRP Compositor")
+				    {
+				        Debug.Log($"Perditio Destroying HDRP Compositor");
+						Destroy(game_object);
+				    }
+				}
             }
         }
     }

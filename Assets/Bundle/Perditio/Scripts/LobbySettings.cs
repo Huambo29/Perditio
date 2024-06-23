@@ -32,6 +32,18 @@ namespace Perditio
             caps_number = _caps_number;
         }
 
+		public static LobbySettings DefaultSettings() {
+			return new LobbySettings(
+				"Control",
+				TerrainDensity.Medium,
+            	TerrainRoughness.Default,
+            	1000,
+            	4,
+            	-1,
+            	5
+			);
+		}
+
         public String scenario;
         public TerrainDensity terrain_density;
         public TerrainRoughness terrain_roughness;
@@ -48,12 +60,16 @@ namespace Perditio
             {
                 if (_instance == null)
                 {
-                    _instance = new LobbySettings("Control", TerrainDensity.Random, TerrainRoughness.Default, 1000, 4, 731274325, 5);
+                    _instance = DefaultSettings();
                 }
                 return _instance;
             }
             set
             {
+				if (_instance == null)
+                {
+                    _instance = DefaultSettings();
+                }
                 _instance = value;
             }
         }

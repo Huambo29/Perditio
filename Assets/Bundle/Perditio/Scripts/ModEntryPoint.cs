@@ -7,32 +7,9 @@ namespace Perditio
 {
     public class ModEntryPoint : IModEntryPoint
     {
-        public const string DENSITY_FIELD_NAME = "Perditio Density";
-        public static readonly string[] DENSITY_FIELD_OPTIONS = new string[4] { "Random", "High", "Medium", "Low" };
+		public const string Perditio_Map_Address = "Assets/Bundle/Perditio/Perditio.prefab";
+		public const string Perditio_Map_Key = "tdAS9vY840iVGm-_fBrhnw";
 
-        public const string ROUGHNESS_FIELD_NAME = "Perditio Roughness";
-        public static readonly string[] ROUGHNESS_FIELD_OPTIONS = new string[5] { "Very Low", "Low", "Default", "High", "Very High" };
-
-        public const int MIN_MAP_RADIUS = 3;
-        public const int MAX_MAP_RADIUS = 51;
-        public const string RADIUS_FIELD_NAME = "Perditio Radius";
-        
-        public const int MIN_TEAM_SIZE = 1;
-        public const int MAX_TEAM_SIZE = 17;
-        public const string TEAM_SIZE_FIELD_NAME = "Perditio Teams Size";
-        
-        public const int MAX_SEED = 256;
-        public const string SEED_FIELD_NAME_1 = "Perditio Seed 1";
-        public const string SEED_FIELD_NAME_2 = "Perditio Seed 2";
-        public const string SEED_FIELD_NAME_3 = "Perditio Seed 3";
-        public const string SEED_FIELD_NAME_4 = "Perditio Seed 4";
-
-        public static readonly string[] OTHER_TEAM_SIZE_MOD_NAMES = new string[1] { "Custom Player Count" };
-
-        public const int MIN_CAPS_POINTS = 1;
-        public const int MAX_CAPS_POINTS = 11;
-        public const string CAPS_POINTS_FIELD_NAME = "Perditio Cap points";
-        
         public void PreLoad()
         {
             Debug.Log("Perditio Preload");
@@ -41,6 +18,7 @@ namespace Perditio
         public void PostLoad()
         {
             Debug.Log("Perditio PostLoad");
+			Debug.Log("Perditio CONQUEST ONLY version: 1.0");
 
             Harmony harmony = new Harmony("nebulous.perditio");
             harmony.PatchAll();
