@@ -840,13 +840,12 @@ namespace Perditio
 
             try
             {
-                Game.Map.SpacePartitioner space_partitioner = GameObject.Find("_SPACE PARTITIONER_").GetComponent<Game.Map.SpacePartitioner>();
-                Utils.SetPrivateValue(space_partitioner, "_leafRadius", Mathf.CeilToInt(64f / 1000f * LobbySettings.instance.radius));
-                Utils.SetPrivateValue(space_partitioner, "_minDepth", 1);
-                Utils.SetPrivateValue(space_partitioner, "_maxDepth", 4);
+				Game.Map.Octree new_octree = new Game.Map.Octree(Vector3Int.zero, Mathf.CeilToInt(64f / 1000f * LobbySettings.instance.radius), 1, 4);
+				new_octree.Build();
+				new_octree.BuildGraph();
 
-                space_partitioner.Editor_Build();
-                space_partitioner.Editor_BuildGraph();
+				Game.Map.SpacePartitioner space_partitioner = GameObject.Find("_SPACE PARTITIONER_").GetComponent<Game.Map.SpacePartitioner>();
+				Utils.SetPrivateValue(space_partitioner, "_tree", new_octree);
             }
             catch (Exception e)
             {

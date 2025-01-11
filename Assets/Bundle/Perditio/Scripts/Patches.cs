@@ -261,7 +261,7 @@ namespace Perditio
             return false;
         }
 
-		static void FixSliderOption(string slider_name, int min_value, int max_value)
+		static void FixSliderOption(string slider_name, int min_value, int max_value, int default_value)
 		{
 			Debug.Log($"Perditio Fixing Slider: {slider_name}");
 			
@@ -279,6 +279,7 @@ namespace Perditio
 					Slider slider_component = slider_transform.GetComponentInChildren<Slider>();
 					slider_component.minValue = (float)min_value;
 					slider_component.maxValue = (float)max_value;
+					slider_component.value = (float)default_value;
 
 					break;
 				}
@@ -294,35 +295,42 @@ namespace Perditio
 
             if (last_scenario == "Control" || last_scenario == "Tug Of War")
             {
-				__instance.AddSliderOption(ModEntryPoint.CAPS_POINTS_FIELD_NAME, 0, 0, 5, false, "0", "Perditio", "", "");
-				FixSliderOption(ModEntryPoint.CAPS_POINTS_FIELD_NAME, ModEntryPoint.MIN_CAPS_POINTS, ModEntryPoint.MAX_CAPS_POINTS - 1);
+				int default_caps = 5;
+				__instance.AddSliderOption(ModEntryPoint.CAPS_POINTS_FIELD_NAME, 0, 0, default_caps, false, "0", "Perditio", "", "");
+				FixSliderOption(ModEntryPoint.CAPS_POINTS_FIELD_NAME, ModEntryPoint.MIN_CAPS_POINTS, ModEntryPoint.MAX_CAPS_POINTS - 1, default_caps);
             }
 
             __instance.AddStringListOption(ModEntryPoint.DENSITY_FIELD_NAME, ModEntryPoint.DENSITY_FIELD_OPTIONS, 2);
             __instance.AddStringListOption(ModEntryPoint.ROUGHNESS_FIELD_NAME, ModEntryPoint.ROUGHNESS_FIELD_OPTIONS, 2);
 
-			__instance.AddSliderOption(ModEntryPoint.RADIUS_FIELD_NAME, 0, 0, 10, false, "0", "Perditio", "", "km");
-			FixSliderOption(ModEntryPoint.RADIUS_FIELD_NAME, ModEntryPoint.MIN_MAP_RADIUS, ModEntryPoint.MAX_MAP_RADIUS - 1);
+			int default_radius = 10;
+			__instance.AddSliderOption(ModEntryPoint.RADIUS_FIELD_NAME, 0, 0, default_radius, false, "0", "Perditio", "", "km");
+			FixSliderOption(ModEntryPoint.RADIUS_FIELD_NAME, ModEntryPoint.MIN_MAP_RADIUS, ModEntryPoint.MAX_MAP_RADIUS - 1, default_radius);
 
             if (!other_team_size_mod)
             {
-				__instance.AddSliderOption(ModEntryPoint.TEAM_SIZE_FIELD_NAME, 0, 0, 4, false, "0", "Perditio", "", "");
-				FixSliderOption(ModEntryPoint.TEAM_SIZE_FIELD_NAME, ModEntryPoint.MIN_TEAM_SIZE, ModEntryPoint.MAX_TEAM_SIZE - 1);
+				int default_team_size = 4;
+				__instance.AddSliderOption(ModEntryPoint.TEAM_SIZE_FIELD_NAME, 0, 0, default_team_size, false, "0", "Perditio", "", "");
+				FixSliderOption(ModEntryPoint.TEAM_SIZE_FIELD_NAME, ModEntryPoint.MIN_TEAM_SIZE, ModEntryPoint.MAX_TEAM_SIZE - 1, default_team_size);
             }
 
             System.Random seeds_generator = new System.Random((int)DateTimeOffset.Now.ToUnixTimeSeconds());
 
-			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_1, 0, 0, seeds_generator.Next() % ModEntryPoint.MAX_SEED, false, "0", "Perditio", "", "");
-			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_1, 0, ModEntryPoint.MAX_SEED - 1);
+			int seed_1 = seeds_generator.Next() % ModEntryPoint.MAX_SEED;
+			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_1, 0, 0, seed_1, false, "0", "Perditio", "", "");
+			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_1, 0, ModEntryPoint.MAX_SEED - 1, seed_1);
 
-			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_2, 0, 0, seeds_generator.Next() % ModEntryPoint.MAX_SEED, false, "0", "Perditio", "", "");
-			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_2, 0, ModEntryPoint.MAX_SEED - 1);
+			int seed_2 = seeds_generator.Next() % ModEntryPoint.MAX_SEED;
+			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_2, 0, 0, seed_2, false, "0", "Perditio", "", "");
+			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_2, 0, ModEntryPoint.MAX_SEED - 1, seed_2);
 
-			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_3, 0, 0, seeds_generator.Next() % ModEntryPoint.MAX_SEED, false, "0", "Perditio", "", "");
-			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_3, 0, ModEntryPoint.MAX_SEED - 1);
+			int seed_3 = seeds_generator.Next() % ModEntryPoint.MAX_SEED;
+			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_3, 0, 0, seed_3, false, "0", "Perditio", "", "");
+			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_3, 0, ModEntryPoint.MAX_SEED - 1, seed_3);
 
-			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_4, 0, 0, seeds_generator.Next() % ModEntryPoint.MAX_SEED, false, "0", "Perditio", "", "");
-			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_4, 0, ModEntryPoint.MAX_SEED - 1);
+			int seed_4 = seeds_generator.Next() % ModEntryPoint.MAX_SEED;
+			__instance.AddSliderOption(ModEntryPoint.SEED_FIELD_NAME_4, 0, 0, seed_4, false, "0", "Perditio", "", "");
+			FixSliderOption(ModEntryPoint.SEED_FIELD_NAME_4, 0, ModEntryPoint.MAX_SEED - 1, seed_4);
 
             Debug.Log("Perditio DirtyInterface End");
         }
